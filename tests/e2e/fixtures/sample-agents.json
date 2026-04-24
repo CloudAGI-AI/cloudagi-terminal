@@ -1,0 +1,112 @@
+[
+  {
+    "id": "agent_fixture_sentiment",
+    "displayName": "Sentiment Classifier Pro",
+    "description": "High-accuracy sentiment classification for English text.",
+    "provider": "ProviderWalletFixture1111111111111111111",
+    "skills": ["sentiment.classify.v1", "classify.intent.v1"],
+    "pricing": { "kind": "per_token", "perMTokensIn": 500, "perMTokensOut": 1000 },
+    "model": { "kind": "hosted", "family": "gpt-4o-mini", "contextWindow": 128000, "maxOutputTokens": 512 },
+    "endpoint": "https://sentiment-fixture.example.com/invoke",
+    "policies": {
+      "maxPromptTokens": 2048,
+      "maxOutputTokens": 512,
+      "allowedTools": [],
+      "allowedSkills": ["sentiment.classify.v1", "classify.intent.v1"],
+      "refuseIfFlags": ["injection", "pii"]
+    },
+    "status": "active",
+    "stake": 25000000,
+    "reputation": 85,
+    "uptimePct": 99.5,
+    "avgLatencyMs": 380
+  },
+  {
+    "id": "agent_fixture_summarizer",
+    "displayName": "Document Summariser",
+    "description": "Condenses long documents into concise bullet-point summaries.",
+    "provider": "ProviderWalletFixture2222222222222222222",
+    "skills": ["summarize.doc.v1", "summarize.chat.v1"],
+    "pricing": { "kind": "per_token", "perMTokensIn": 800, "perMTokensOut": 1600 },
+    "model": { "kind": "local", "family": "llama-3.1-8b-instruct", "quantization": "Q4_K_M", "contextWindow": 8192, "maxOutputTokens": 2048 },
+    "endpoint": "https://summarizer-fixture.example.com/invoke",
+    "policies": {
+      "maxPromptTokens": 6000,
+      "maxOutputTokens": 2048,
+      "allowedTools": [],
+      "allowedSkills": ["summarize.doc.v1", "summarize.chat.v1"],
+      "refuseIfFlags": ["injection"]
+    },
+    "status": "active",
+    "stake": 50000000,
+    "reputation": 72,
+    "uptimePct": 97.2,
+    "avgLatencyMs": 1200
+  },
+  {
+    "id": "agent_fixture_coder",
+    "displayName": "Code Assistant",
+    "description": "Reviews, generates, and explains code across popular languages.",
+    "provider": "ProviderWalletFixture3333333333333333333",
+    "skills": ["code.review.v1", "code.generate.v1", "code.explain.v1"],
+    "pricing": { "kind": "per_call", "flatCallPrice": 100000 },
+    "model": { "kind": "hosted", "family": "gpt-4o", "contextWindow": 128000, "maxOutputTokens": 4096 },
+    "endpoint": "https://coder-fixture.example.com/invoke",
+    "policies": {
+      "maxPromptTokens": 8192,
+      "maxOutputTokens": 4096,
+      "allowedTools": ["code_interpreter"],
+      "allowedSkills": ["code.review.v1", "code.generate.v1", "code.explain.v1"],
+      "refuseIfFlags": ["injection", "unsafe_code"]
+    },
+    "status": "active",
+    "stake": 100000000,
+    "reputation": 91,
+    "uptimePct": 99.9,
+    "avgLatencyMs": 750
+  },
+  {
+    "id": "agent_fixture_translator",
+    "displayName": "Multilingual Translator",
+    "description": "Translates text between 40+ language pairs with cultural context.",
+    "provider": "ProviderWalletFixture4444444444444444444",
+    "skills": ["translate.text.v1"],
+    "pricing": { "kind": "per_token", "perMTokensIn": 300, "perMTokensOut": 600 },
+    "model": { "kind": "local", "family": "mistral-7b-instruct", "contextWindow": 32768, "maxOutputTokens": 1024 },
+    "endpoint": "https://translator-fixture.example.com/invoke",
+    "policies": {
+      "maxPromptTokens": 4096,
+      "maxOutputTokens": 1024,
+      "allowedTools": [],
+      "allowedSkills": ["translate.text.v1"],
+      "refuseIfFlags": ["injection"]
+    },
+    "status": "active",
+    "stake": 25000000,
+    "reputation": 68,
+    "uptimePct": 96.1,
+    "avgLatencyMs": 950
+  },
+  {
+    "id": "agent_fixture_extractor",
+    "displayName": "Entity & JSON Extractor",
+    "description": "Extracts structured entities and converts unstructured text to JSON.",
+    "provider": "ProviderWalletFixture5555555555555555555",
+    "skills": ["extract.entities.v1", "extract.json.v1", "classify.topic.v1"],
+    "pricing": { "kind": "per_token", "perMTokensIn": 600, "perMTokensOut": 1200 },
+    "model": { "kind": "hosted", "family": "gpt-4o-mini", "contextWindow": 128000, "maxOutputTokens": 2048 },
+    "endpoint": "https://extractor-fixture.example.com/invoke",
+    "policies": {
+      "maxPromptTokens": 16384,
+      "maxOutputTokens": 2048,
+      "allowedTools": [],
+      "allowedSkills": ["extract.entities.v1", "extract.json.v1", "classify.topic.v1"],
+      "refuseIfFlags": ["injection", "pii"]
+    },
+    "status": "active",
+    "stake": 75000000,
+    "reputation": 79,
+    "uptimePct": 98.4,
+    "avgLatencyMs": 520
+  }
+]

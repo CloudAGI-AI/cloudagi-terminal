@@ -1,0 +1,19 @@
+[package]
+name    = "mandate-intent"
+version = "0.1.0"
+edition = "2021"
+description = "CloudAGI intent-approval program — on-chain mandate PDAs with scope binding"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "mandate_intent"
+
+[features]
+no-entrypoint  = []
+no-idl         = []
+no-log-ix-name = []
+cpi            = ["no-entrypoint"]
+default        = []
+
+[dependencies]
+anchor-lang = { workspace = true }

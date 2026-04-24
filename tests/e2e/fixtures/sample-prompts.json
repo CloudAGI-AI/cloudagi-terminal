@@ -1,0 +1,22 @@
+[
+  { "id": "p01", "text": "Classify the sentiment of: I love this product, it works perfectly!", "skill": "sentiment.classify.v1" },
+  { "id": "p02", "text": "Classify the sentiment of: This is absolutely terrible, I want a refund.", "skill": "sentiment.classify.v1" },
+  { "id": "p03", "text": "Classify the sentiment of: The product is okay, nothing special.", "skill": "sentiment.classify.v1" },
+  { "id": "p04", "text": "Summarise the following article in 3 bullet points: [ARTICLE_PLACEHOLDER]", "skill": "summarize.doc.v1" },
+  { "id": "p05", "text": "Extract all named entities (people, organisations, locations) from: The CEO of Anthropic met with the President in Washington.", "skill": "extract.entities.v1" },
+  { "id": "p06", "text": "Translate to Spanish: Good morning, I would like to schedule a meeting.", "skill": "translate.text.v1" },
+  { "id": "p07", "text": "Review this Python function for bugs: def divide(a, b): return a / b", "skill": "code.review.v1" },
+  { "id": "p08", "text": "Generate a TypeScript function that debounces a callback with a given delay.", "skill": "code.generate.v1" },
+  { "id": "p09", "text": "Explain what a merkle tree is and why it's used in blockchains.", "skill": "code.explain.v1" },
+  { "id": "p10", "text": "Classify the intent of: Book me a flight to Paris next Tuesday.", "skill": "classify.intent.v1" },
+  { "id": "p11", "text": "Extract JSON from this text: Name is Alice, age is 30, city is London.", "skill": "extract.json.v1" },
+  { "id": "p12", "text": "Summarise this Slack conversation thread: [THREAD_PLACEHOLDER]", "skill": "summarize.chat.v1" },
+  { "id": "p13", "text": "Classify the topic of: The Federal Reserve raised interest rates by 25 basis points.", "skill": "classify.topic.v1" },
+  { "id": "p14", "text": "Reason step by step: If all cats are animals and Whiskers is a cat, what can we conclude?", "skill": "reason.chain.v1" },
+  { "id": "p15", "text": "Translate to Japanese: Thank you for your patience.", "skill": "translate.text.v1" },
+  { "id": "p16", "text": "Review this Rust code for memory safety issues: fn main() { let x = &5; println!(\"{}\", x); }", "skill": "code.review.v1" },
+  { "id": "p17", "text": "Summarise in one sentence: [LONG_DOCUMENT_PLACEHOLDER]", "skill": "summarize.doc.v1" },
+  { "id": "p18", "text": "Extract all dates and times from: The meeting is scheduled for March 15th at 3pm EST.", "skill": "extract.entities.v1" },
+  { "id": "p19", "text": "Classify the sentiment of: Meh, I've seen better.", "skill": "sentiment.classify.v1" },
+  { "id": "p20", "text": "Generate a SQL query that finds the top 10 customers by total order value.", "skill": "code.generate.v1" }
+]

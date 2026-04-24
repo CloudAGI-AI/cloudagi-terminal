@@ -7,7 +7,9 @@
     "build": "tsc --noEmit && bun build src/index.ts --outdir dist --target bun",
     "start": "bun run dist/index.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "hono": "^4.7.0",
@@ -18,6 +20,7 @@
     "typescript": "^5.5.0",
     "@types/bun": "latest",
     "bun-types": "latest",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0"
   }
 }

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "scope_minimal",
+    "description": "Minimal single-call sentiment classification scope",
+    "scope": "per_invocation",
+    "boundSkills": ["sentiment.classify.v1"],
+    "boundTools": [],
+    "maxTokensIn": 512,
+    "maxTokensOut": 64,
+    "maxSpend": "50000",
+    "maxDurationMs": 10000,
+    "intentText": "Classify the sentiment of the provided text using sentiment.classify.v1, without calling any external tools. Estimated cost: ~$0.001."
+  },
+  {
+    "id": "scope_session_summarise",
+    "description": "Per-session scope for repeated document summarisation",
+    "scope": "per_session",
+    "boundSkills": ["summarize.doc.v1", "summarize.chat.v1"],
+    "boundTools": [],
+    "maxTokensIn": 6000,
+    "maxTokensOut": 2048,
+    "maxSpend": "5000000",
+    "maxDurationMs": 60000,
+    "intentText": "Summarise documents and chat threads using summarize.doc.v1 or summarize.chat.v1 for the duration of this session (up to $0.50 total)."
+  },
+  {
+    "id": "scope_code_with_tool",
+    "description": "Code review scope that allows the code_interpreter tool",
+    "scope": "per_invocation",
+    "boundSkills": ["code.review.v1", "code.generate.v1"],
+    "boundTools": ["code_interpreter"],
+    "maxTokensIn": 8192,
+    "maxTokensOut": 4096,
+    "maxSpend": "200000",
+    "maxDurationMs": 30000,
+    "intentText": "Review and optionally generate code using code.review.v1 / code.generate.v1, with access to the code_interpreter tool for execution. Estimated cost: ~$0.002."
+  }
+]

@@ -1,0 +1,19 @@
+[package]
+name    = "escrow-stake"
+version = "0.1.0"
+edition = "2021"
+description = "CloudAGI escrow-stake program — provider stake lock and reputation-based slash"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "escrow_stake"
+
+[features]
+no-entrypoint  = []
+no-idl         = []
+no-log-ix-name = []
+cpi            = ["no-entrypoint"]
+default        = []
+
+[dependencies]
+anchor-lang = { workspace = true }

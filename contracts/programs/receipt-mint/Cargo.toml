@@ -1,0 +1,23 @@
+[package]
+name    = "receipt-mint"
+version = "0.1.0"
+edition = "2021"
+description = "CloudAGI receipt-mint program — wraps Metaplex Bubblegum v2 cNFT mint for per-invocation receipts"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "receipt_mint"
+
+[features]
+no-entrypoint  = []
+no-idl         = []
+no-log-ix-name = []
+cpi            = ["no-entrypoint"]
+default        = []
+
+[dependencies]
+anchor-lang             = { workspace = true }
+anchor-spl              = { workspace = true }
+mpl-bubblegum           = { workspace = true }
+spl-account-compression = { workspace = true }
+spl-noop                = { workspace = true }
