@@ -25,7 +25,11 @@ export {
   ToolCallSchema,
   InvocationFlagsSchema,
   InvocationParamsSchema,
+  InjectionFlagSchema,
 } from "./schemas/invocation.js";
+
+// --- Injection detection ---
+export { detectPromptInjection, scanInjectionFlags } from "./injection.js";
 
 export { ReceiptSchema } from "./schemas/receipt.js";
 
@@ -62,6 +66,7 @@ export type {
   ReputationTiming,
   IntentApproval,
   IntentScope,
+  InjectionFlag,
 } from "./types/index.js";
 
 // --- Constants ---

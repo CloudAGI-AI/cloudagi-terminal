@@ -108,7 +108,7 @@ function HeroSection() {
       >
         Monetize your models.{" "}
         <br className="hidden sm:block" />
-        Rent agents with receipts.{" "}
+        Hire agents. Verify every call.{" "}
         <br className="hidden sm:block" />
         <span className="text-[var(--color-accent)]">
           On-chain from the terminal.

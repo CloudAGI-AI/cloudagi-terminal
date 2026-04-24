@@ -5,8 +5,6 @@
 //! (the default) to an on-chain mandate for recurring invocation scope.
 //!
 //! SPEC §10.3 — Intent approval mechanism (elevated / on-chain path).
-//!
-//! All instruction bodies are stubs (Ok(())). Wave 2/3 will fill logic.
 // TODO: replace with real declare_id! after first `anchor build` + deploy
 #![allow(clippy::result_large_err)]
 
@@ -18,10 +16,10 @@ declare_id!("11111111111111111111111111111111");
 // PDA seed constants
 // ---------------------------------------------------------------------------
 
-pub const INTENT_SEED: &[u8]  = b"intent";
-pub const CONFIG_SEED: &[u8]  = b"mandate_config";
+pub const INTENT_SEED:  &[u8] = b"intent";
+pub const CONFIG_SEED:  &[u8] = b"mandate_config";
 
-// Maximum number of allowed-tool hashes stored on-chain.
+/// Maximum number of allowed-tool hashes stored on-chain.
 pub const MAX_ALLOWED_TOOLS: usize = 16;
 
 // ---------------------------------------------------------------------------
@@ -38,26 +36,48 @@ pub mod mandate_intent {
     /// agent: maximum lamport spend, a whitelist of tool fingerprints
     /// (sha256 of canonical tool name), and a duration cap.
     ///
+    /// PDA seeds: `["intent", authority, agent, created_nonce.to_le_bytes()]`
+    ///
     /// SPEC §10.3 — on-chain mandate path.
-    #[allow(unused_variables)]
     pub fn create_intent(
         ctx: Context<CreateIntent>,
         scope: ScopeArgs,
+        created_nonce: u64,
     ) -> Result<()> {
-        let intent = &mut ctx.accounts.intent_account;
-        let clock  = Clock::get()?;
+        // --- validation ---
+        require!(
+            scope.max_spend_lamports > 0,
+            MandateError::ZeroSpend
+        );
+        require!(
+            scope.max_duration_secs > 0,
+            MandateError::ZeroDuration
+        );
 
-        intent.authority   = ctx.accounts.authority.key();
-        intent.agent       = ctx.accounts.agent.key();
-        intent.status      = IntentStatus::Pending;
-        intent.created_at  = clock.unix_timestamp;
-        intent.expires_at  = clock.unix_timestamp
-            .checked_add(scope.max_duration_secs as i64)
+        let clock = Clock::get()?;
+        let created_at = clock.unix_timestamp;
+        let expires_at = created_at
+            .checked_add(i64::from(scope.max_duration_secs))
             .ok_or(MandateError::ArithmeticOverflow)?;
-        intent.scope       = scope.into_stored()?;
-        intent.approval_sig = [0u8; 64]; // populated by approve_intent
 
-        // TODO Wave 2: emit Intent.Declared event via cpi log
+        let intent = &mut ctx.accounts.intent_account;
+        intent.authority    = ctx.accounts.authority.key();
+        intent.agent        = ctx.accounts.agent.key();
+        intent.status       = IntentStatus::Pending;
+        intent.created_at   = created_at;
+        intent.expires_at   = expires_at;
+        intent.created_nonce = created_nonce;
+        intent.scope        = scope.into_stored()?;
+        intent.approval_sig = [0u8; 64]; // populated by approve_intent
+        intent.bump         = ctx.bumps.intent_account;
+
+        emit!(IntentCreated {
+            authority:     intent.authority,
+            agent:         intent.agent,
+            created_nonce,
+            expires_at,
+        });
+
         Ok(())
     }
 
@@ -65,8 +85,7 @@ pub mod mandate_intent {
     ///
     /// The signature covers a canonical JSON digest of the scope fields
     /// plus the intent PDA address as the nonce anchor.
-    /// Full signature verification (via ed25519 sysvar CPI) is Wave 2.
-    #[allow(unused_variables)]
+    /// Full signature verification (via ed25519 sysvar CPI) is Wave 3.
     pub fn approve_intent(
         ctx: Context<ApproveIntent>,
         signature: [u8; 64],
@@ -85,15 +104,20 @@ pub mod mandate_intent {
         intent.approval_sig = signature;
         intent.status       = IntentStatus::Approved;
 
-        // TODO Wave 2: verify ed25519 signature via Instructions sysvar
+        // TODO(wave-3): verify ed25519 signature via Instructions sysvar CPI.
+
+        emit!(IntentApproved {
+            authority: intent.authority,
+            agent:     intent.agent,
+        });
+
         Ok(())
     }
 
     /// Redeem an approved intent — called by the facilitator at settlement
-    /// time to mark the mandate consumed or decrement a usage counter.
+    /// time to mark the mandate consumed.
     ///
     /// SPEC §10.3 — subsequent invocations reference mandate id.
-    #[allow(unused_variables)]
     pub fn redeem_intent(ctx: Context<RedeemIntent>) -> Result<()> {
         let intent = &mut ctx.accounts.intent_account;
         let clock  = Clock::get()?;
@@ -109,15 +133,17 @@ pub mod mandate_intent {
 
         intent.status = IntentStatus::Consumed;
 
-        // TODO Wave 2: emit Receipt.Redeemed log; CPI to receipt-mint
+        emit!(IntentConsumed {
+            authority: intent.authority,
+            agent:     intent.agent,
+        });
+
         Ok(())
     }
 
     /// Expire an intent that has passed its deadline without being consumed.
     ///
-    /// Permissionless — anyone can clean up a stale PDA (SOL reclaim goes
-    /// to the authority, not the caller).
-    #[allow(unused_variables)]
+    /// Permissionless — anyone can clean up a stale PDA.
     pub fn expire_intent(ctx: Context<ExpireIntent>) -> Result<()> {
         let intent = &mut ctx.accounts.intent_account;
         let clock  = Clock::get()?;
@@ -136,7 +162,14 @@ pub mod mandate_intent {
 
         intent.status = IntentStatus::Expired;
 
-        // TODO Wave 2: close PDA and reclaim rent to authority
+        emit!(IntentExpired {
+            authority: intent.authority,
+            agent:     intent.agent,
+        });
+
+        // TODO(wave-3): close PDA and reclaim rent to authority via
+        // `close = authority` constraint once PDA lifecycle is finalised.
+
         Ok(())
     }
 }
@@ -146,7 +179,7 @@ pub mod mandate_intent {
 // ---------------------------------------------------------------------------
 
 #[derive(Accounts)]
-#[instruction(scope: ScopeArgs)]
+#[instruction(scope: ScopeArgs, created_nonce: u64)]
 pub struct CreateIntent<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -158,7 +191,12 @@ pub struct CreateIntent<'info> {
         init,
         payer  = authority,
         space  = IntentAccount::SPACE,
-        seeds  = [INTENT_SEED, authority.key().as_ref(), agent.key().as_ref()],
+        seeds  = [
+            INTENT_SEED,
+            authority.key().as_ref(),
+            agent.key().as_ref(),
+            &created_nonce.to_le_bytes(),
+        ],
         bump,
     )]
     pub intent_account: Account<'info, IntentAccount>,
@@ -172,8 +210,13 @@ pub struct ApproveIntent<'info> {
 
     #[account(
         mut,
-        seeds = [INTENT_SEED, authority.key().as_ref(), intent_account.agent.as_ref()],
-        bump,
+        seeds = [
+            INTENT_SEED,
+            authority.key().as_ref(),
+            intent_account.agent.as_ref(),
+            &intent_account.created_nonce.to_le_bytes(),
+        ],
+        bump = intent_account.bump,
         has_one = authority,
     )]
     pub intent_account: Account<'info, IntentAccount>,
@@ -190,15 +233,16 @@ pub struct RedeemIntent<'info> {
             INTENT_SEED,
             intent_account.authority.as_ref(),
             intent_account.agent.as_ref(),
+            &intent_account.created_nonce.to_le_bytes(),
         ],
-        bump,
+        bump = intent_account.bump,
     )]
     pub intent_account: Account<'info, IntentAccount>,
 }
 
 #[derive(Accounts)]
 pub struct ExpireIntent<'info> {
-    /// Permissionless caller — rent returned to authority.
+    /// Permissionless caller.
     pub caller: Signer<'info>,
 
     #[account(
@@ -207,8 +251,9 @@ pub struct ExpireIntent<'info> {
             INTENT_SEED,
             intent_account.authority.as_ref(),
             intent_account.agent.as_ref(),
+            &intent_account.created_nonce.to_le_bytes(),
         ],
-        bump,
+        bump = intent_account.bump,
     )]
     pub intent_account: Account<'info, IntentAccount>,
 }
@@ -227,6 +272,9 @@ pub struct IntentAccount {
     pub authority: Pubkey,
     /// Agent the mandate is scoped to.
     pub agent: Pubkey,
+    /// Caller-supplied nonce, included in the PDA seeds to allow multiple
+    /// concurrent intents per (authority, agent) pair.
+    pub created_nonce: u64,
     /// Scope parameters agreed by the buyer.
     pub scope: StoredScope,
     /// Ed25519 signature of the buyer over the canonical scope digest.
@@ -243,9 +291,11 @@ pub struct IntentAccount {
 }
 
 impl IntentAccount {
-    // discriminator(8) + authority(32) + agent(32) + StoredScope + sig(64)
-    // + status(1) + created_at(8) + expires_at(8) + bump(1)
-    pub const SPACE: usize = 8 + 32 + 32 + StoredScope::SIZE + 64 + 1 + 8 + 8 + 1;
+    // discriminator(8) + authority(32) + agent(32) + created_nonce(8)
+    // + StoredScope + sig(64) + status(1) + created_at(8) + expires_at(8)
+    // + bump(1)
+    pub const SPACE: usize =
+        8 + 32 + 32 + 8 + StoredScope::SIZE + 64 + 1 + 8 + 8 + 1;
 }
 
 /// Compact on-chain representation of approved scope.
@@ -265,10 +315,10 @@ pub struct StoredScope {
 
 impl StoredScope {
     pub const SIZE: usize =
-        8                              // max_spend_lamports
-        + (32 * MAX_ALLOWED_TOOLS)     // allowed_tools array
-        + 1                            // allowed_tools_len
-        + 4;                           // max_duration_secs
+        8                          // max_spend_lamports
+        + (32 * MAX_ALLOWED_TOOLS) // allowed_tools array
+        + 1                        // allowed_tools_len
+        + 4;                       // max_duration_secs
 }
 
 // ---------------------------------------------------------------------------
@@ -324,6 +374,40 @@ pub enum IntentStatus {
 }
 
 // ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+/// Emitted when a new intent mandate is created.
+#[event]
+pub struct IntentCreated {
+    pub authority:     Pubkey,
+    pub agent:         Pubkey,
+    pub created_nonce: u64,
+    pub expires_at:    i64,
+}
+
+/// Emitted when the buyer approves the intent with their signature.
+#[event]
+pub struct IntentApproved {
+    pub authority: Pubkey,
+    pub agent:     Pubkey,
+}
+
+/// Emitted when the facilitator redeems an approved intent at settlement.
+#[event]
+pub struct IntentConsumed {
+    pub authority: Pubkey,
+    pub agent:     Pubkey,
+}
+
+/// Emitted when a permissionless caller marks a stale intent as expired.
+#[event]
+pub struct IntentExpired {
+    pub authority: Pubkey,
+    pub agent:     Pubkey,
+}
+
+// ---------------------------------------------------------------------------
 // Errors
 // ---------------------------------------------------------------------------
 
@@ -341,4 +425,8 @@ pub enum MandateError {
     TooManyTools,
     #[msg("Arithmetic overflow in timestamp calculation")]
     ArithmeticOverflow,
+    #[msg("max_spend_lamports must be greater than zero")]
+    ZeroSpend,
+    #[msg("max_duration_secs must be greater than zero")]
+    ZeroDuration,
 }

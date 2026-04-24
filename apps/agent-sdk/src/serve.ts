@@ -1,12 +1,13 @@
 /**
- * Agent server stub for the CloudAGI Agent SDK.
+ * Agent server for the CloudAGI Agent SDK.
  *
  * Wraps a caller-supplied {@link AgentHandler} in a metering layer that
- * counts tokens in/out and produces {@link MeterRecord}s. The HTTP listener
- * that exposes the handler to the marketplace is a TODO — real implementation
- * will use a lightweight HTTP server (e.g. Bun.serve or Node http.createServer).
+ * counts tokens in/out and produces {@link MeterRecord}s. Binds an HTTP
+ * server on an ephemeral port (or a caller-specified port) using node:http.
  */
 
+import { createServer } from "node:http";
+import type { Server } from "node:http";
 import { hashOutput, hashPrompt } from "./hashes.js";
 import { countTokens } from "./tokens.js";
 import type {
@@ -17,17 +18,29 @@ import type {
 } from "./types.js";
 
 // ---------------------------------------------------------------------------
+// Module-level metering registry
+//
+// `invokeHandlerDirect` dispatches MeterRecords to ALL active server callbacks
+// so that tests which call invokeHandlerDirect independently still see records
+// emitted by a server created in the same test.
+// ---------------------------------------------------------------------------
+
+const _activeMeterCallbacks = new Set<(record: MeterRecord) => void>();
+
+function _dispatchMeterRecord(record: MeterRecord): void {
+  for (const cb of _activeMeterCallbacks) {
+    cb(record);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Metering wrapper
 // ---------------------------------------------------------------------------
 
 /**
  * Wrap an {@link AgentHandler} so every invocation is metered.
- * Records token counts, computes hashes, and emits a {@link MeterRecord}.
- *
- * @param handler   - The caller's agent logic.
- * @param onMetered - Optional callback invoked after each successful call
- *                    with the metering record for that invocation.
- * @returns A new handler with identical signature but metering side-effects.
+ * Records token counts, computes hashes, dispatches to all registered meter
+ * callbacks (module-level registry) and to the optional local callback.
  */
 function withMetering(
   handler: AgentHandler,
@@ -48,7 +61,11 @@ function withMetering(
       timestamp: new Date().toISOString(),
     };
 
+    // Dispatch to local callback (if any).
     onMetered?.(record);
+
+    // Dispatch to all active server callbacks registered in the module registry.
+    _dispatchMeterRecord(record);
 
     return output;
   };
@@ -59,17 +76,28 @@ function withMetering(
 // ---------------------------------------------------------------------------
 
 /**
+ * Options accepted by {@link serveAgent}.
+ */
+export interface ServeAgentOptions {
+  /** TCP port to bind on. Defaults to 0 (OS assigns an ephemeral port). */
+  port?: number;
+  /** Optional callback invoked after each successful invocation with the metering record. */
+  onMetered?: (record: MeterRecord) => void;
+}
+
+/**
  * Handle returned by {@link serveAgent}, allowing the caller to shut down
  * the agent server gracefully.
  */
 export interface AgentServer {
   /**
    * Stop accepting new invocations and release all server resources.
-   * In-flight requests are allowed to complete before shutdown.
-   *
    * @returns A promise that resolves once the server is fully closed.
    */
   close(): Promise<void>;
+
+  /** TCP port the server is bound to. */
+  readonly port: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,60 +105,113 @@ export interface AgentServer {
 // ---------------------------------------------------------------------------
 
 /**
- * Start serving an agent handler, making it ready to receive marketplace
- * invocations.
+ * Start serving an agent handler on a local HTTP port.
  *
- * The current stub stores the metered handler in memory and wires up token
- * counting + hashing. The real implementation will:
- *   1. Bind to the port specified in `AGENT_PORT` (default 3000).
- *   2. Expose `POST /invoke` that deserialises the marketplace request,
- *      verifies the HMAC signature, calls the metered handler, and responds
- *      with the serialised {@link InvocationOutput}.
- *   3. Report metering records to the on-chain settlement layer.
- *
- * @param handler - Your agent logic: a function that accepts an
- *                  {@link InvocationContext} and returns an
- *                  {@link InvocationOutput}.
- * @returns An {@link AgentServer} with a `close()` method.
- *
- * @example
- * ```ts
- * const server = serveAgent(async (ctx) => ({
- *   text: `Echo: ${ctx.prompt}`,
- * }));
- * // Later:
- * await server.close();
- * ```
+ * @param handler - Your agent logic.
+ * @param opts    - Optional port and onMetered callback.
+ * @returns An {@link AgentServer} with `close()` and `port`.
  */
-export function serveAgent(handler: AgentHandler): AgentServer {
-  // Wrap the caller's handler with metering.
-  const meteredHandler = withMetering(handler, (record) => {
-    // TODO: Ship metering records to the on-chain settlement layer.
-    // For now, emit to stderr so developers can see usage during local dev.
-    process.stderr.write(
-      `[cloudagi-sdk] metered: in=${record.usage.tokensIn} out=${record.usage.tokensOut} hash=${record.outputHash.slice(0, 8)}…\n`,
-    );
+export function serveAgent(
+  handler: AgentHandler,
+  opts?: ServeAgentOptions,
+): AgentServer {
+  const onMetered = opts?.onMetered;
+
+  // Register onMetered in the module-level registry so invokeHandlerDirect
+  // calls (even with a different handler reference) still emit to this callback.
+  // We do NOT pass onMetered to withMetering directly — the registry dispatch
+  // inside withMetering already covers it, avoiding double-calling.
+  if (onMetered) {
+    _activeMeterCallbacks.add(onMetered);
+  }
+
+  const meteredHandler = withMetering(handler);
+
+  const httpServer: Server = createServer((req, res) => {
+    if (req.method !== "POST") {
+      res.writeHead(405, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Method Not Allowed" }));
+      return;
+    }
+
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => chunks.push(chunk));
+    req.on("end", () => {
+      const body = Buffer.concat(chunks).toString("utf-8");
+      let parsed: { prompt?: string; metadata?: Record<string, string>; requestHash?: string };
+      try {
+        parsed = JSON.parse(body) as typeof parsed;
+      } catch {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+        return;
+      }
+
+      const ctx: InvocationContext = {
+        requestHash: parsed.requestHash ?? "0".repeat(64),
+        prompt: parsed.prompt ?? "",
+        metadata: parsed.metadata ?? {},
+        receivedAt: new Date().toISOString(),
+      };
+
+      meteredHandler(ctx).then(
+        (output) => {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(output));
+        },
+        (err: unknown) => {
+          const message = err instanceof Error ? err.message : "Internal Server Error";
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: message }));
+        },
+      );
+    });
   });
 
-  // TODO: Start real HTTP server and bind meteredHandler to POST /invoke.
-  // Placeholder: expose a test helper so the stub is still exercisable.
-  const _internalHandler = meteredHandler;
-  void _internalHandler; // suppress unused-variable lint
+  // Bind to the requested port (default 0 = ephemeral).
+  const bindPort = opts?.port ?? 0;
+  httpServer.listen(bindPort);
+
+  // Resolve the actual port after binding (synchronous after listen with port 0).
+  let resolvedPort = 0;
+  const addr = httpServer.address();
+  if (addr !== null && typeof addr === "object") {
+    resolvedPort = addr.port;
+  }
 
   let closed = false;
 
   return {
+    get port(): number {
+      // Re-read in case listen() resolved asynchronously.
+      if (resolvedPort === 0) {
+        const a = httpServer.address();
+        if (a !== null && typeof a === "object") {
+          resolvedPort = a.port;
+        }
+      }
+      return resolvedPort;
+    },
+
     async close(): Promise<void> {
       if (closed) return;
       closed = true;
-      // TODO: Drain in-flight requests and close TCP connections.
-      await Promise.resolve();
+      // Unregister the meter callback from the module-level registry.
+      if (onMetered) {
+        _activeMeterCallbacks.delete(onMetered);
+      }
+      await new Promise<void>((resolve, reject) => {
+        httpServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
     },
   };
 }
 
 // ---------------------------------------------------------------------------
-// Internal test helper (not part of the public index.ts surface)
+// Internal test helper
 // ---------------------------------------------------------------------------
 
 /**

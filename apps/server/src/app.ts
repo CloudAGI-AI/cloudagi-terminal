@@ -20,11 +20,15 @@ app.get("/", (c) => {
 
 // ── Health ────────────────────────────────────────────────────────────────────
 const SERVER_START = Date.now();
+const PKG_VERSION = "0.0.0";
+const BUILD_SHA = process.env["BUILD_SHA"] ?? "dev";
 
 app.get("/health", (c) => {
   return c.json({
     status: "ok",
     uptimeMs: Date.now() - SERVER_START,
+    version: PKG_VERSION,
+    build: BUILD_SHA,
   });
 });
 

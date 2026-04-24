@@ -4,6 +4,11 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: {
+    // Allow JSX in .ts files (e.g. src/test-utils/index.ts contains JSX fragments)
+    include: /\.[jt]sx?$/,
+    loader: "tsx",
+  },
   test: {
     environment: "jsdom",
     globals: true,

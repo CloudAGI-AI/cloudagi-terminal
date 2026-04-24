@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    // Each test file runs in a separate process so in-memory stores reset.
+    pool: "forks",
+    isolate: true,
     include: ["src/**/*.test.ts", "src/**/__tests__/**/*.test.ts"],
     coverage: {
       provider: "v8",

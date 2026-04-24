@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { InjectionFlagSchema } from "../injection.js";
+
+export { InjectionFlagSchema };
 
 /** A single tool call made by the agent during an invocation. */
 export const ToolCallSchema = z.object({
@@ -74,6 +77,8 @@ export const InvocationSchema = z.object({
   tokensOut: z.number().int().nonnegative(),
   toolCalls: z.array(ToolCallSchema),
   flags: InvocationFlagsSchema,
+  /** Detailed prompt-injection detection flags (SPEC §9.3). */
+  injectionFlags: z.array(InjectionFlagSchema).optional(),
 
   // --- Settlement ---
   /** Gross settlement amount in stablecoin base units. */

@@ -5,6 +5,7 @@ import type {
   AgentPolicySchema,
   PricingModelSchema,
 } from "../schemas/agent.js";
+import type { InjectionFlagSchema } from "../injection.js";
 import type { SessionSchema } from "../schemas/session.js";
 import type {
   InvocationSchema,
@@ -75,3 +76,6 @@ export type IntentApproval = z.infer<typeof IntentApprovalSchema>;
 
 /** TypeScript type for intent scope constraints. */
 export type IntentScope = z.infer<typeof IntentScopeSchema>;
+
+/** TypeScript type for a single prompt-injection detection flag. */
+export type InjectionFlag = z.infer<typeof InjectionFlagSchema>;
