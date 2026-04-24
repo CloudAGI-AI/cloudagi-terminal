@@ -57,3 +57,8 @@ playwright-report/
 Thumbs.db
 .Spotlight-V100
 .Trashes
+
+# OMC runtime state
+.omc/
+
+# Legacy worktree location
