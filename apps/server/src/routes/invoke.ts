@@ -190,10 +190,15 @@ invoke.post("/:id/invoke", async (c) => {
 
   const { prompt } = bodyParsed.data;
 
+  const isHydra = id === "11111111-1111-4111-8111-111111111111";
+  const sentiment = classifyCryptoSentiment(prompt);
+
   // Build receipt
   const receiptId = `rcpt_${randomUUID().replace(/-/g, "").slice(0, 24)}`;
   const promptHash = await sha256Hex(prompt);
-  const mockOutput = `Processed: ${prompt.slice(0, 80)}`;
+  const mockOutput = isHydra
+    ? `${sentiment.label}|${sentiment.confidence}|${sentiment.rationale}`
+    : `Processed: ${prompt.slice(0, 80)}`;
   const outputHash = await sha256Hex(mockOutput);
 
   const tokensIn = Math.max(1, Math.ceil(prompt.length / 4));
@@ -250,5 +255,35 @@ invoke.post("/:id/invoke", async (c) => {
     },
   });
 });
+
+function classifyCryptoSentiment(prompt: string): {
+  label: "bullish" | "bearish" | "neutral";
+  confidence: number;
+  rationale: string;
+} {
+  const text = prompt.toLowerCase();
+  const bullish = ["breakout", "pump", "rally", "up", "green", "buy", "accumulate", "ath", "etf", "inflow"];
+  const bearish = ["dump", "crash", "down", "red", "sell", "liquidation", "hack", "outflow", "bear", "fear"];
+  const bullScore = bullish.filter((word) => text.includes(word)).length;
+  const bearScore = bearish.filter((word) => text.includes(word)).length;
+
+  if (bullScore === bearScore) {
+    return { label: "neutral", confidence: 0.62, rationale: "mixed or low-conviction market signal" };
+  }
+
+  if (bullScore > bearScore) {
+    return {
+      label: "bullish",
+      confidence: Math.min(0.94, 0.68 + bullScore * 0.06),
+      rationale: `positive momentum keywords outweighed risk terms (${bullScore}:${bearScore})`,
+    };
+  }
+
+  return {
+    label: "bearish",
+    confidence: Math.min(0.94, 0.68 + bearScore * 0.06),
+    rationale: `risk/offloading keywords outweighed upside terms (${bearScore}:${bullScore})`,
+  };
+}
 
 export { invoke };

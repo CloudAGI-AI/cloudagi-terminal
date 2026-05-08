@@ -3,6 +3,8 @@ import { requestLogger } from "./middleware/logging.js";
 import { agents } from "./routes/agents.js";
 import { invoke } from "./routes/invoke.js";
 import { receipts } from "./routes/receipts.js";
+import { feed } from "./routes/feed.js";
+import { leaderboard } from "./routes/leaderboard.js";
 
 const app = new Hono();
 
@@ -36,6 +38,8 @@ app.get("/health", (c) => {
 app.route("/v1/agents", agents);
 app.route("/v1/agents", invoke);   // mounts /:id/invoke under /v1/agents
 app.route("/v1/receipts", receipts);
+app.route("/v1/feed", feed);
+app.route("/v1/leaderboard", leaderboard);
 
 // ── WebSocket placeholder ─────────────────────────────────────────────────────
 // TODO (Wave 4): Wire WebSocket streaming for /v1/sessions/:id/stream
