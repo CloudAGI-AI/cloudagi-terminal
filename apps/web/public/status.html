@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CloudAGI — Build Status · Solana Hackathon Submission</title>
+<title>CloudAGI Build Status · Solana Hackathon Submission</title>
 <meta name="description" content="Live build status for the CloudAGI agent-credit marketplace. Solana hackathon submission progress, architecture diagram, and feature checklist." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E◈%3C/text%3E%3C/svg%3E" />
 <style>
@@ -240,7 +240,7 @@
     <div class="container row">
       <div style="display:flex; align-items:center; gap:16px;">
         <span class="brand">◈ cloudagi</span>
-        <span class="pulse"><span class="dot"></span>day 1 of 3 — solana sprint</span>
+        <span class="pulse"><span class="dot"></span>day 1 of 3 · solana sprint</span>
       </div>
       <div class="links">
         <a href="#architecture">Architecture</a>
@@ -255,12 +255,13 @@
 
   <header class="hero">
     <div class="container">
-      <div style="font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.18em; text-transform:uppercase;">SWARM × Colosseum Frontier — Submission Build</div>
-      <h1>The agent credit economy, <br/><span class="accent">on Solana, with verifiable receipts.</span></h1>
+      <div style="font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.18em; text-transform:uppercase;">SWARM × Colosseum Frontier · Submission Build</div>
+      <h1>Sell tokens, <br/><span class="accent">not subscriptions.</span></h1>
       <p class="lede">
-        Sellers list idle agent capacity (Claude Max, Cursor Pro, local GPUs).
-        Buyers pay per task in USDC via x402-solana. Every call mints a sub-cent
-        compressed-NFT receipt. Hydra — our self-funding hero agent — earns,
+        Tokens per watt per dollar is the unit. Solana is the rail. CloudAGI is the marketplace.
+        Sellers list idle credit pools, local Gemma 3 endpoints, or Qwen3 hosts.
+        Buyers pay per call in USDC via x402-solana. Every call mints a sub-cent
+        compressed NFT receipt. Hydra is our self-funding hero agent. It earns,
         spends, and climbs a live benchmark leaderboard.
       </p>
       <div class="cta-row">
@@ -277,13 +278,13 @@
     <div class="status-grid">
       <div class="status-card">
         <div class="label">Sprint progress</div>
-        <div class="value accent">42<span style="color:var(--muted); font-size:18px;">%</span></div>
-        <div class="sub">day 1 — landing + status + waitlist + tests green</div>
-        <div class="progress-track"><div class="progress-fill" style="width:42%"></div></div>
+        <div class="value accent">55<span style="color:var(--muted); font-size:18px;">%</span></div>
+        <div class="sub">day 1 · landing v2 + supabase waitlist + tests green + x402 toggle wired</div>
+        <div class="progress-track"><div class="progress-fill" style="width:55%"></div></div>
       </div>
       <div class="status-card">
         <div class="label">Time to deadline</div>
-        <div class="value warn" id="countdown">—</div>
+        <div class="value warn" id="countdown">·</div>
         <div class="sub">submit by may 11 · 11:59 PM PDT</div>
       </div>
       <div class="status-card">
@@ -412,7 +413,7 @@ flowchart LR
           </div>
           <p class="desc">
             Record one Playwright flow → emit a JSON step-graph → list as artifact, mint as cNFT.
-            No real microVM in this sprint — judges see a deterministic replay, not a research project.
+            No real microVM in this sprint. Judges see a deterministic replay, not a research project.
           </p>
           <ul class="checklist">
             <li class="todo"><span class="dot"></span><span>Headed Playwright recorder script</span><span class="tag">day 3</span></li>
@@ -436,8 +437,8 @@ flowchart LR
           </p>
           <ul class="checklist">
             <li class="done"><span class="dot"></span><span>Visual status page (this artifact)</span><span class="tag">live</span></li>
-            <li class="done"><span class="dot"></span><span>Brand port — apps/web landing (cloudagi.ai positioning)</span><span class="tag">live</span></li>
-            <li class="done"><span class="dot"></span><span>Working waitlist — POST /api/waitlist · file-backed JSONL</span><span class="tag">live</span></li>
+            <li class="done"><span class="dot"></span><span>Brand port · apps/web landing (tokens-per-watt-per-dollar reframe)</span><span class="tag">live</span></li>
+            <li class="done"><span class="dot"></span><span>Working waitlist · POST /api/waitlist backed by Supabase</span><span class="tag">live</span></li>
             <li class="done"><span class="dot"></span><span>Branch pushed: feat/server-hydra-stabilize → CloudAGI-AI/cloudagi-terminal</span><span class="tag">live</span></li>
             <li class="todo"><span class="dot"></span><span>Migrate waitlist to Supabase</span><span class="tag">post-meeting</span></li>
             <li class="todo"><span class="dot"></span><span>Pitch video (3 min, killer-demo cut)</span><span class="tag">day 3</span></li>
@@ -454,7 +455,7 @@ flowchart LR
       <p style="text-align:center; color:var(--muted); font-family:var(--mono); font-size:13px; max-width:720px; margin:0 auto 32px;">
         "Hydra wakes a sleeping local provider, pays it on devnet, streams the answer, then spends
         its own earnings to publish a receipt and move up the live leaderboard."
-        <br/><span style="color:var(--muted-dim);">— gpt-5.5 high, cross-model verdict</span>
+        <br/><span style="color:var(--muted-dim);">· gpt-5.5 high, cross-model verdict</span>
       </p>
       <div class="demoflow">
         <div class="step">
@@ -494,7 +495,7 @@ flowchart LR
       <div class="risks">
         <div class="risk high">
           <div class="icon">!</div>
-          <div class="body">Helius free tier limits — 10 req/s RPC, 2 req/s DAS, 1/s sendTransaction
+          <div class="body">Helius free tier limits. 10 req/s RPC, 2 req/s DAS, 1/s sendTransaction
             <small>could throttle cNFT mint UX during recorded demo · warm cache + backup endpoint</small>
           </div>
           <span class="tag">high</span>
@@ -539,7 +540,7 @@ flowchart LR
 
     <!-- Stack -->
     <section class="block" id="stack">
-      <h2><span class="num">05</span>Stack — pinned</h2>
+      <h2><span class="num">05</span>Stack · pinned</h2>
       <div class="stack-grid">
         <div class="pill"><strong>Bun</strong><span class="v">≥1.3</span></div>
         <div class="pill"><strong>TypeScript</strong><span class="v">5.7 strict</span></div>
@@ -600,8 +601,8 @@ flowchart LR
       <h2><span class="num">07</span>Provenance</h2>
       <dl class="kv">
         <dt>Brand origin</dt><dd>Built at Nevermined Autonomous Business Hackathon · AWS Builder Loft SF (Mar 2026)</dd>
-        <dt>Prior validation</dt><dd>ARC Hackathon — ModelMarket (61 USDC-per-call txs on Circle Arc, 5 models, x402 EIP-3009)</dd>
-        <dt>Current sprint</dt><dd>SWARM × Colosseum Frontier — Solana submission · May 8–11 2026</dd>
+        <dt>Prior validation</dt><dd>ARC Hackathon · ModelMarket (61 USDC-per-call txs on Circle Arc, 5 models, x402 EIP-3009)</dd>
+        <dt>Current sprint</dt><dd>SWARM × Colosseum Frontier · Solana submission · May 8 to 11 2026</dd>
         <dt>Repository</dt><dd><a href="https://github.com/aryateja2106/cloudagi" style="color:var(--accent);">github.com/aryateja2106/cloudagi</a></dd>
         <dt>Live site</dt><dd><a href="https://cloudagi.ai" style="color:var(--accent);">cloudagi.ai</a></dd>
         <dt>Submission portal</dt><dd><a href="https://arena.colosseum.org?ref=SWARM" style="color:var(--accent);">arena.colosseum.org?ref=SWARM</a></dd>
@@ -615,7 +616,7 @@ flowchart LR
       <div>◈ cloudagi · Apache 2.0 · built in San Francisco</div>
       <div>
         <span style="color:var(--muted-dim);">last updated:</span>
-        <span id="ts" style="color:var(--accent);">—</span>
+        <span id="ts" style="color:var(--accent);">·</span>
       </div>
     </div>
   </footer>
