@@ -24,7 +24,7 @@ import SessionPage from "./page";
 // Mock params — Next.js page receives { params: { id: string } }
 // ---------------------------------------------------------------------------
 
-const MOCK_PARAMS = { id: "agent_abc123" };
+const MOCK_PARAMS = Promise.resolve({ id: "agent_abc123" });
 
 // ---------------------------------------------------------------------------
 // Page structure

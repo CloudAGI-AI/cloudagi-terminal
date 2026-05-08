@@ -2,7 +2,7 @@
   "name": "cloudagi-terminal",
   "private": true,
   "version": "0.0.0",
-  "description": "CloudAGI — Cloud Agentic Infrastructure. Monorepo.",
+  "description": "CloudAGI. Cloud Agentic Infrastructure monorepo.",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -15,7 +15,11 @@
     "test:watch": "vitest",
     "typecheck": "bun run --cwd apps/web typecheck && bun run --cwd apps/server typecheck",
     "lint": "biome check .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md}": "biome check --write --no-errors-on-unmatched"
   },
   "engines": {
     "node": ">=20",
@@ -23,6 +27,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.3",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },

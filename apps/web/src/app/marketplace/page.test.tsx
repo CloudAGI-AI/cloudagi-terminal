@@ -115,7 +115,7 @@ describe("MarketplacePage — open terminal (SPEC §3.2 story 12)", () => {
         screen.getAllByRole("button", { name: /open terminal/i }).length
       ).toBeGreaterThanOrEqual(1);
     });
-    const firstCTA = screen.getAllByRole("button", { name: /open terminal/i })[0];
+    const firstCTA = screen.getAllByRole("button", { name: /open terminal/i })[0]!;
     fireEvent.click(firstCTA);
     // Wave 2: should trigger router.push to /session/[id]
     // Verified via mock router or link href
@@ -133,7 +133,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
   it("each agent card displays the agent display name", async () => {
     render(<MarketplacePage />);
     await waitFor(() => {
-      const firstCard = screen.getAllByRole("article")[0];
+      const firstCard = screen.getAllByRole("article")[0]!;
       expect(within(firstCard).getByRole("heading")).toBeInTheDocument();
     });
   });
@@ -141,7 +141,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
   it("each agent card displays at least one skill tag as a badge", async () => {
     render(<MarketplacePage />);
     await waitFor(() => {
-      const firstCard = screen.getAllByRole("article")[0];
+      const firstCard = screen.getAllByRole("article")[0]!;
       // Wave 2: skill tags should have data-slot="badge" or role marker
       expect(
         within(firstCard).getAllByRole("listitem").length
@@ -152,7 +152,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
   it("each agent card displays the price per million tokens", async () => {
     render(<MarketplacePage />);
     await waitFor(() => {
-      const firstCard = screen.getAllByRole("article")[0];
+      const firstCard = screen.getAllByRole("article")[0]!;
       expect(within(firstCard).getByText(/M-tok|\$0\.\d+/i)).toBeInTheDocument();
     });
   });
@@ -160,7 +160,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
   it("each agent card displays the agent status badge (active / paused / slashed)", async () => {
     render(<MarketplacePage />);
     await waitFor(() => {
-      const firstCard = screen.getAllByRole("article")[0];
+      const firstCard = screen.getAllByRole("article")[0]!;
       expect(
         within(firstCard).getByText(/active|paused|slashed/i)
       ).toBeInTheDocument();
