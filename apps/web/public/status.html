@@ -277,9 +277,9 @@
     <div class="status-grid">
       <div class="status-card">
         <div class="label">Sprint progress</div>
-        <div class="value accent">15<span style="color:var(--muted); font-size:18px;">%</span></div>
-        <div class="sub">day 1 of 3 — server stabilization</div>
-        <div class="progress-track"><div class="progress-fill" style="width:15%"></div></div>
+        <div class="value accent">42<span style="color:var(--muted); font-size:18px;">%</span></div>
+        <div class="sub">day 1 — landing + status + waitlist + tests green</div>
+        <div class="progress-track"><div class="progress-fill" style="width:42%"></div></div>
       </div>
       <div class="status-card">
         <div class="label">Time to deadline</div>
@@ -372,10 +372,11 @@ flowchart LR
             <li class="done"><span class="dot"></span><span>Hono server scaffold + middleware</span><span class="tag">done</span></li>
             <li class="done"><span class="dot"></span><span>Agent registry (in-memory) + Hydra seed</span><span class="tag">done</span></li>
             <li class="done"><span class="dot"></span><span>Mock x402 challenge / retry handshake</span><span class="tag">done</span></li>
-            <li class="wip"><span class="dot"></span><span>Server typecheck + tests green</span><span class="tag">codex</span></li>
-            <li class="wip"><span class="dot"></span><span>/v1/feed/receipts + /v1/leaderboard endpoints</span><span class="tag">wired</span></li>
-            <li class="todo"><span class="dot"></span><span>Real USDC devnet settlement via x402-solana</span><span class="tag">today</span></li>
-            <li class="todo"><span class="dot"></span><span>Phantom wallet adapter on buyer side</span><span class="tag">today</span></li>
+            <li class="done"><span class="dot"></span><span>Server typecheck + 137 tests green</span><span class="tag">10:18</span></li>
+            <li class="done"><span class="dot"></span><span>In-process smoke test: 4× GET 200, 402→200 SSE, receipt 1→2</span><span class="tag">10:18</span></li>
+            <li class="done"><span class="dot"></span><span>/v1/feed/receipts + /v1/leaderboard endpoints</span><span class="tag">live</span></li>
+            <li class="wip"><span class="dot"></span><span>Real USDC devnet settlement via x402-solana</span><span class="tag">codex</span></li>
+            <li class="todo"><span class="dot"></span><span>Phantom wallet adapter on buyer side</span><span class="tag">claude</span></li>
             <li class="todo"><span class="dot"></span><span>Anchor registry program (PDA-only fallback OK)</span><span class="tag">stretch</span></li>
           </ul>
         </article>
@@ -434,9 +435,11 @@ flowchart LR
             · Solscan tx for the killer demo moment · public GitHub.
           </p>
           <ul class="checklist">
-            <li class="done"><span class="dot"></span><span>Visual status page (this artifact)</span><span class="tag">done</span></li>
-            <li class="wip"><span class="dot"></span><span>Brand port — apps/web landing</span><span class="tag">today</span></li>
-            <li class="todo"><span class="dot"></span><span>Working waitlist (Supabase backend)</span><span class="tag">today</span></li>
+            <li class="done"><span class="dot"></span><span>Visual status page (this artifact)</span><span class="tag">live</span></li>
+            <li class="done"><span class="dot"></span><span>Brand port — apps/web landing (cloudagi.ai positioning)</span><span class="tag">live</span></li>
+            <li class="done"><span class="dot"></span><span>Working waitlist — POST /api/waitlist · file-backed JSONL</span><span class="tag">live</span></li>
+            <li class="done"><span class="dot"></span><span>Branch pushed: feat/server-hydra-stabilize → CloudAGI-AI/cloudagi-terminal</span><span class="tag">live</span></li>
+            <li class="todo"><span class="dot"></span><span>Migrate waitlist to Supabase</span><span class="tag">post-meeting</span></li>
             <li class="todo"><span class="dot"></span><span>Pitch video (3 min, killer-demo cut)</span><span class="tag">day 3</span></li>
             <li class="todo"><span class="dot"></span><span>Submit on Colosseum portal · ?ref=SWARM</span><span class="tag">may 11</span></li>
             <li class="todo"><span class="dot"></span><span>LinkedIn launch post</span><span class="tag">post-submit</span></li>
