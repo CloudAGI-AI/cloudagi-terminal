@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import * as React from "react";
 
 // ---------------------------------------------------------------------------
 // Mock data — Wave 3 replaces with real API calls
@@ -79,7 +79,7 @@ function exportCSV(receipts: MockReceipt[]) {
   const rows = receipts
     .map(
       (r) =>
-        `${r.id},${r.agentName},${r.tokensIn},${r.tokensOut},${r.settlement},${r.status},${r.timestamp}`
+        `${r.id},${r.agentName},${r.tokensIn},${r.tokensOut},${r.settlement},${r.status},${r.timestamp}`,
     )
     .join("\n");
   const blob = new Blob([header + rows], { type: "text/csv" });
@@ -107,12 +107,8 @@ function exportJSONL(receipts: MockReceipt[]) {
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = React.useState<"provider" | "buyer">(
-    "provider"
-  );
-  const [agentStatus, setAgentStatus] = React.useState<"active" | "paused">(
-    MOCK_AGENT.status
-  );
+  const [activeTab, setActiveTab] = React.useState<"provider" | "buyer">("provider");
+  const [agentStatus, setAgentStatus] = React.useState<"active" | "paused">(MOCK_AGENT.status);
   const [price, setPrice] = React.useState<number>(MOCK_AGENT.price);
 
   return (
@@ -138,7 +134,7 @@ export default function DashboardPage() {
                 "px-5 py-2.5 text-xs font-mono border-b-2 -mb-px transition-colors",
                 activeTab === tab
                   ? "border-[#00d184] text-[#00d184]"
-                  : "border-transparent text-[var(--color-muted,#888)] hover:text-[var(--color-foreground,#f5f5f5)]"
+                  : "border-transparent text-[var(--color-muted,#888)] hover:text-[var(--color-foreground,#f5f5f5)]",
               )}
             >
               {tab === "provider" ? "Provider" : "Buyer"}
@@ -163,12 +159,8 @@ export default function DashboardPage() {
                   key={m.label}
                   className="p-4 rounded-lg border border-[var(--color-border,#2a2a2a)] bg-[var(--color-surface,#111)]"
                 >
-                  <p className="text-xs font-mono text-[var(--color-muted,#888)] mb-1">
-                    {m.label}
-                  </p>
-                  <p className="text-lg font-mono font-semibold text-[#00d184]">
-                    {m.value}
-                  </p>
+                  <p className="text-xs font-mono text-[var(--color-muted,#888)] mb-1">{m.label}</p>
+                  <p className="text-lg font-mono font-semibold text-[#00d184]">{m.value}</p>
                 </div>
               ))}
             </div>
@@ -232,7 +224,7 @@ export default function DashboardPage() {
                       "w-20 rounded-md border border-[var(--color-border,#2a2a2a)]",
                       "bg-[var(--color-surface-raised,#1a1a1a)]",
                       "px-2 py-1 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                      "focus:outline-none focus:border-[#00d184]"
+                      "focus:outline-none focus:border-[#00d184]",
                     )}
                   />
                   <Button variant="ghost" size="sm">
@@ -273,10 +265,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <table
-            aria-label="Receipt history"
-            className="w-full text-xs font-mono border-collapse"
-          >
+          <table aria-label="Receipt history" className="w-full text-xs font-mono border-collapse">
             <thead>
               <tr className="border-b border-[var(--color-border,#2a2a2a)] text-[var(--color-muted,#888)]">
                 <th className="text-left py-2 pr-4">ID</th>
@@ -303,17 +292,15 @@ export default function DashboardPage() {
                   <td className="py-2 pr-4 text-right text-[var(--color-foreground,#f5f5f5)]">
                     {r.tokensOut}
                   </td>
-                  <td className="py-2 pr-4 text-right text-[#00d184]">
-                    {r.settlement}
-                  </td>
+                  <td className="py-2 pr-4 text-right text-[#00d184]">{r.settlement}</td>
                   <td className="py-2">
                     <Badge
                       variant={
                         r.status === "minted"
                           ? "success"
                           : r.status === "disputed"
-                          ? "warning"
-                          : "danger"
+                            ? "warning"
+                            : "danger"
                       }
                     >
                       {r.status}

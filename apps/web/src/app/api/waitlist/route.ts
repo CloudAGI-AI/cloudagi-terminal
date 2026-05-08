@@ -75,10 +75,7 @@ async function insertEntry(
 export async function POST(request: Request) {
   const cfg = supabaseConfigured();
   if (!cfg) {
-    return NextResponse.json(
-      { error: "Waitlist storage not configured" },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "Waitlist storage not configured" }, { status: 503 });
   }
 
   const body = (await request.json().catch(() => null)) as InsertBody | null;
@@ -86,10 +83,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
   }
 
-  const role =
-    typeof body.role === "string" && ROLES.has(body.role) ? body.role : "buyer";
-  const source =
-    typeof body.source === "string" ? body.source.slice(0, 64) : "landing";
+  const role = typeof body.role === "string" && ROLES.has(body.role) ? body.role : "buyer";
+  const source = typeof body.source === "string" ? body.source.slice(0, 64) : "landing";
   const email = body.email.trim().toLowerCase();
 
   const ip =
@@ -105,10 +100,7 @@ export async function POST(request: Request) {
 
   const result = await insertEntry(cfg, { email, role, source, ip });
   if (!result.ok && !result.conflict) {
-    return NextResponse.json(
-      { error: `Insert failed (${result.status})` },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: `Insert failed (${result.status})` }, { status: 502 });
   }
 
   const count = await getCount(cfg);

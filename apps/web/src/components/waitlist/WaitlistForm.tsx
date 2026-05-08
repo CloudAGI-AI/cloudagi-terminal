@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { useState } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -13,7 +13,7 @@ const ROLES = [
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<typeof ROLES[number]["id"]>("seller");
+  const [role, setRole] = useState<(typeof ROLES)[number]["id"]>("seller");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -93,7 +93,9 @@ export function WaitlistForm() {
               aria-hidden="true"
               className={cn(
                 "w-3 h-3 rounded-full border",
-                role === r.id ? "border-[var(--color-accent)] bg-[var(--color-accent)]" : "border-[var(--color-border)]",
+                role === r.id
+                  ? "border-[var(--color-accent)] bg-[var(--color-accent)]"
+                  : "border-[var(--color-border)]",
               )}
             />
             {r.label}

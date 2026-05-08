@@ -30,23 +30,18 @@ export type {
   TxSignature,
   ReceiptHandle,
   Skill,
-
   // Pricing
   TokenPricing,
-
   // Agent descriptor
   Agent,
-
   // Registration
   RegisterAgentOptions,
   AgentRegistration,
-
   // Server-side handler
   InvocationContext,
   InvocationOutput,
   AgentHandler,
   MeterRecord,
-
   // Buyer-side
   TokenUsage,
   InvocationResult,

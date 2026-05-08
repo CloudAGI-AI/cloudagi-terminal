@@ -73,9 +73,7 @@ export function listAgents(opts: ListAgentsOptions = {}): ListAgentsResult {
 
   if (skill !== undefined) {
     const needle = skill.toLowerCase();
-    items = items.filter((a) =>
-      a.skills.some((s) => s.toLowerCase().includes(needle)),
-    );
+    items = items.filter((a) => a.skills.some((s) => s.toLowerCase().includes(needle)));
   }
 
   if (minReputation !== undefined) {

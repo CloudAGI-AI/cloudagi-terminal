@@ -1,3 +1,5 @@
+import { render } from "@/test-utils";
+import { axe, toHaveNoViolations } from "jest-axe";
 /**
  * Accessibility smoke tests — Wave 1 RED phase.
  *
@@ -11,9 +13,7 @@
  * Note: axe catches ~30% of WCAG issues automatically; manual testing is
  * still required for full compliance.
  */
-import { describe, it, expect } from "vitest";
-import { render } from "@/test-utils";
-import { axe, toHaveNoViolations } from "jest-axe";
+import { describe, expect, it } from "vitest";
 import HomePage from "./page";
 
 expect.extend(toHaveNoViolations);
@@ -52,12 +52,7 @@ describe("Landing page — axe-core WCAG 2.1 AA smoke", () => {
     const results = await axe(container, {
       runOnly: {
         type: "rule",
-        values: [
-          "landmark-one-main",
-          "landmark-unique",
-          "region",
-          "bypass",
-        ],
+        values: ["landmark-one-main", "landmark-unique", "region", "bypass"],
       },
     });
     expect(results).toHaveNoViolations();
@@ -79,11 +74,7 @@ describe("Landing page — axe-core WCAG 2.1 AA smoke", () => {
     const results = await axe(container, {
       runOnly: {
         type: "rule",
-        values: [
-          "focusable-no-name",
-          "interactive-supports-focus",
-          "tabindex",
-        ],
+        values: ["focusable-no-name", "interactive-supports-focus", "tabindex"],
       },
     });
     expect(results).toHaveNoViolations();

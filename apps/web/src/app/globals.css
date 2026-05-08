@@ -21,8 +21,7 @@
   --color-warning: #f5a623;
 
   /* Typography */
-  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "Cascadia Code",
-    "Fira Code", monospace;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code", monospace;
   --font-sans: "Geist", system-ui, -apple-system, sans-serif;
 
   /* Radii */

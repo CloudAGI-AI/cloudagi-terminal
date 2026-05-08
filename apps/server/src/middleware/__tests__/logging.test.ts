@@ -6,8 +6,8 @@
  * format will FAIL until a custom logger is implemented.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Hono } from "hono";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { requestLogger } from "../../middleware/logging.js";
 import { get, post } from "../../test-utils/fetch-helper.js";
 
@@ -58,7 +58,12 @@ describe("requestLogger middleware — basic request logging", () => {
     const app = buildLoggedApp();
     await get(app, "/test");
     const jsonLines = logOutput.filter((line) => {
-      try { JSON.parse(line); return true; } catch { return false; }
+      try {
+        JSON.parse(line);
+        return true;
+      } catch {
+        return false;
+      }
     });
     expect(jsonLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -68,7 +73,13 @@ describe("requestLogger middleware — basic request logging", () => {
     const app = buildLoggedApp();
     await get(app, "/test");
     const jsonLines = logOutput
-      .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+      .map((l) => {
+        try {
+          return JSON.parse(l);
+        } catch {
+          return null;
+        }
+      })
       .filter(Boolean);
     expect(jsonLines.length).toBeGreaterThanOrEqual(1);
     const entry = jsonLines[0] as Record<string, unknown>;
@@ -83,7 +94,13 @@ describe("requestLogger middleware — basic request logging", () => {
     const app = buildLoggedApp();
     await get(app, "/error");
     const jsonLines = logOutput
-      .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+      .map((l) => {
+        try {
+          return JSON.parse(l);
+        } catch {
+          return null;
+        }
+      })
       .filter(Boolean) as Array<Record<string, unknown>>;
     const errorEntry = jsonLines.find((e) => e["status"] === 500);
     expect(errorEntry).toBeDefined();
@@ -154,7 +171,13 @@ describe("requestLogger middleware — sensitive header redaction", () => {
     const app = buildLoggedApp();
     await post(app, "/test", { data: "ok" }, { "Content-Type": "application/json" });
     const jsonLines = logOutput
-      .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+      .map((l) => {
+        try {
+          return JSON.parse(l);
+        } catch {
+          return null;
+        }
+      })
       .filter(Boolean) as Array<Record<string, unknown>>;
     // At least the status should appear — structured logging not yet implemented,
     // but once it is the Content-Type must NOT be redacted

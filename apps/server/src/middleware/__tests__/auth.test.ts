@@ -5,10 +5,10 @@
  * credentials for the MVP auth middleware.
  */
 
-import { describe, it, expect } from "vitest";
 import { Hono } from "hono";
+import { describe, expect, it } from "vitest";
 import { authMiddleware } from "../../middleware/auth.js";
-import { get, post } from "../../test-utils/fetch-helper.js";
+import { get } from "../../test-utils/fetch-helper.js";
 
 // Valid mock Solana Ed25519 wallet signature (base58-encoded, 64 bytes)
 const MOCK_WALLET_ADDRESS = "9xDR7CeHZiDv3PivpLhHAp5p7KmdQnJZZbH1FYKRB1Zk";

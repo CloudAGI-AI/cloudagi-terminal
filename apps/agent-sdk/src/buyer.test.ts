@@ -7,10 +7,10 @@
  *            receipt surface (stub rcpt_ prefix is coincidentally correct)
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ZodError } from "zod";
 import { createBuyerClient } from "./buyer.js";
-import type { BuyerClient, InvocationResult, Agent, ReceiptHandle } from "./types.js";
+import type { BuyerClient, InvocationResult } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Factory validation — GREEN
@@ -29,15 +29,11 @@ describe("createBuyerClient — input validation", () => {
   });
 
   it("throws ZodError when walletKeypair is wrong length (< 64)", () => {
-    expect(() =>
-      createBuyerClient({ walletKeypair: new Uint8Array(32) }),
-    ).toThrow(ZodError);
+    expect(() => createBuyerClient({ walletKeypair: new Uint8Array(32) })).toThrow(ZodError);
   });
 
   it("throws ZodError when walletKeypair is wrong length (> 64)", () => {
-    expect(() =>
-      createBuyerClient({ walletKeypair: new Uint8Array(128) }),
-    ).toThrow(ZodError);
+    expect(() => createBuyerClient({ walletKeypair: new Uint8Array(128) })).toThrow(ZodError);
   });
 
   it("throws ZodError when maxBudgetLamports is zero", () => {
@@ -64,7 +60,9 @@ describe("createBuyerClient — input validation", () => {
 
 describe("BuyerClient.listAgents", () => {
   let client: BuyerClient;
-  beforeEach(() => { client = createBuyerClient(); });
+  beforeEach(() => {
+    client = createBuyerClient();
+  });
 
   it("returns a non-empty array", async () => {
     const agents = await client.listAgents();
@@ -120,13 +118,12 @@ describe("BuyerClient.listAgents", () => {
 
 describe("BuyerClient.invoke — return shape (GREEN)", () => {
   let client: BuyerClient;
-  beforeEach(() => { client = createBuyerClient(); });
+  beforeEach(() => {
+    client = createBuyerClient();
+  });
 
   it("resolves to an InvocationResult with all required fields", async () => {
-    const result: InvocationResult = await client.invoke(
-      "agent_stub_0001",
-      "Summarise this text.",
-    );
+    const result: InvocationResult = await client.invoke("agent_stub_0001", "Summarise this text.");
     expect(typeof result.receipt).toBe("string");
     expect(typeof result.outputHash).toBe("string");
     expect(typeof result.text).toBe("string");
@@ -218,16 +215,16 @@ describe("BuyerClient.invoke — x402 retry (RED)", () => {
     // RED: real impl must reject with a budget-exceeded error, not loop forever.
     const client = createBuyerClient({ maxBudgetLamports: 1 });
 
-    const alwaysFetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ error: "payment required" }), { status: 402 }),
-    );
+    const alwaysFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ error: "payment required" }), { status: 402 }),
+      );
 
     const globalFetch = globalThis.fetch;
     globalThis.fetch = alwaysFetch;
     try {
-      await expect(
-        client.invoke("agent_real_001", "always 402"),
-      ).rejects.toThrow();
+      await expect(client.invoke("agent_real_001", "always 402")).rejects.toThrow();
     } finally {
       globalThis.fetch = globalFetch;
     }
@@ -240,7 +237,9 @@ describe("BuyerClient.invoke — x402 retry (RED)", () => {
 
 describe("BuyerClient.getReceipts", () => {
   let client: BuyerClient;
-  beforeEach(() => { client = createBuyerClient(); });
+  beforeEach(() => {
+    client = createBuyerClient();
+  });
 
   it("returns an array of receipt handle strings", async () => {
     const receipts = await client.getReceipts();

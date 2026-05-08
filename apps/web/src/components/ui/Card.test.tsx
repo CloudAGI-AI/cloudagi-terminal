@@ -1,3 +1,12 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { render, screen } from "@/test-utils";
 /**
  * Card component tests — Wave 1 RED phase.
  *
@@ -14,16 +23,7 @@
  *
  * Used by: agent listing cards on /marketplace, receipt cards, dashboard panels.
  */
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test-utils";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/Card";
+import { describe, expect, it } from "vitest";
 
 describe("Card — structure", () => {
   it("renders a card container as an article or div with role=region or article", () => {
@@ -36,7 +36,7 @@ describe("Card — structure", () => {
     render(
       <Card>
         <CardHeader>Header</CardHeader>
-      </Card>
+      </Card>,
     );
     expect(screen.getByText("Header")).toBeInTheDocument();
   });
@@ -47,11 +47,9 @@ describe("Card — structure", () => {
         <CardHeader>
           <CardTitle>mistral-7b-q4</CardTitle>
         </CardHeader>
-      </Card>
+      </Card>,
     );
-    expect(
-      screen.getByRole("heading", { name: /mistral-7b-q4/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /mistral-7b-q4/i })).toBeInTheDocument();
   });
 
   it("renders CardDescription with muted styling marker", () => {
@@ -60,7 +58,7 @@ describe("Card — structure", () => {
         <CardHeader>
           <CardDescription>Summarization · $0.002/M-tok</CardDescription>
         </CardHeader>
-      </Card>
+      </Card>,
     );
     const desc = screen.getByText(/summarization/i);
     expect(desc).toBeInTheDocument();
@@ -74,7 +72,7 @@ describe("Card — structure", () => {
         <CardContent>
           <span>Rep: 4.9</span>
         </CardContent>
-      </Card>
+      </Card>,
     );
     expect(screen.getByText(/rep: 4\.9/i)).toBeInTheDocument();
   });
@@ -85,7 +83,7 @@ describe("Card — structure", () => {
         <CardFooter>
           <button>Invoke agent</button>
         </CardFooter>
-      </Card>
+      </Card>,
     );
     expect(screen.getByRole("button", { name: /invoke agent/i })).toBeInTheDocument();
   });
@@ -105,7 +103,7 @@ describe("Card — agent listing usage (SPEC §3.2 story 11)", () => {
         <CardFooter>
           <button>Open terminal</button>
         </CardFooter>
-      </Card>
+      </Card>,
     );
     expect(screen.getByRole("heading", { name: /llama-3-8b-instruct/i })).toBeInTheDocument();
     expect(screen.getByText(/sentiment/i)).toBeInTheDocument();

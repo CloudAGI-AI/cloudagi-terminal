@@ -7,12 +7,7 @@
  */
 
 import { registerAgentOptionsSchema } from "./schemas.js";
-import type {
-  AgentId,
-  AgentRegistration,
-  RegisterAgentOptions,
-  TxSignature,
-} from "./types.js";
+import type { AgentId, AgentRegistration, RegisterAgentOptions, TxSignature } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Dev/test default: set a stub keypair sentinel so the SDK works out-of-the-box
@@ -28,8 +23,7 @@ if (!process.env["AGENT_WALLET_KEYPAIR"]) {
 // ---------------------------------------------------------------------------
 
 /** Base-58 alphabet (no 0, O, I, l). */
-const BASE58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 /**
  * Generate a random string of length `len` using the base-58 alphabet.
@@ -90,9 +84,7 @@ function generateTxSignature(): TxSignature {
  * @throws {ZodError} If any field in `opts` fails validation.
  * @throws {Error} If no wallet keypair can be resolved.
  */
-export async function registerAgent(
-  opts: RegisterAgentOptions,
-): Promise<AgentRegistration> {
+export async function registerAgent(opts: RegisterAgentOptions): Promise<AgentRegistration> {
   // Validate — throws ZodError on invalid input.
   registerAgentOptionsSchema.parse(opts);
 

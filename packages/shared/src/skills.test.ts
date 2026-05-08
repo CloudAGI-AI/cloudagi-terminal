@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  KNOWN_SKILL_TAGS,
+  SkillTagStringSchema,
   parseSkillTag,
   serializeSkillTag,
-  SkillTagStringSchema,
-  KNOWN_SKILL_TAGS,
 } from "./skills.js";
 
 describe("parseSkillTag", () => {
@@ -55,9 +55,7 @@ describe("serializeSkillTag", () => {
   });
 
   it("throws if version does not match vN pattern", () => {
-    expect(() =>
-      serializeSkillTag({ domain: "code", action: "review", version: "1" }),
-    ).toThrow();
+    expect(() => serializeSkillTag({ domain: "code", action: "review", version: "1" })).toThrow();
   });
 });
 

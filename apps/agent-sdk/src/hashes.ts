@@ -34,7 +34,10 @@ function bufferToHex(buffer: ArrayBuffer): string {
  * all modern browsers.
  */
 async function sha256Hex(data: Uint8Array): Promise<string> {
-  const buffer = await globalThis.crypto.subtle.digest("SHA-256", data);
+  const buffer = await globalThis.crypto.subtle.digest(
+    "SHA-256",
+    data as BufferSource,
+  );
   return bufferToHex(buffer);
 }
 
@@ -62,10 +65,7 @@ async function sha256Hex(data: Uint8Array): Promise<string> {
  * // → "3f2a..." (64-char hex string)
  * ```
  */
-export async function hashPrompt(
-  prompt: string,
-  params: object,
-): Promise<string> {
+export async function hashPrompt(prompt: string, params: object): Promise<string> {
   const sortedParams = JSON.stringify(params, sortObjectKeys);
   const canonical = `prompt:${prompt}\nparams:${sortedParams}`;
   return sha256Hex(encode(canonical));

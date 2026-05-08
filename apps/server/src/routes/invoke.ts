@@ -3,11 +3,11 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { Errors } from "../lib/errors.js";
 import {
+  type SolanaX402PaymentContext,
   createSolanaX402PaymentContext,
   isRealX402SolanaEnabled,
   settleSolanaX402Payment,
   verifySolanaX402Payment,
-  type SolanaX402PaymentContext,
 } from "../lib/x402-solana.js";
 import { getAgent } from "../store/agents.js";
 import { consumeNonce, issueNonce } from "../store/nonces.js";
@@ -218,7 +218,10 @@ invoke.post("/:id/invoke", async (c) => {
   // ── Payment auth present ────────────────────────────────────────────────────
 
   // Must start with "x402 "
-  if (!realX402Enabled && (paymentAuthHeader === undefined || !paymentAuthHeader.startsWith("x402 "))) {
+  if (
+    !realX402Enabled &&
+    (paymentAuthHeader === undefined || !paymentAuthHeader.startsWith("x402 "))
+  ) {
     return c.json(
       { error: { code: "PAYMENT_REQUIRED", message: "Invalid payment auth format" } },
       402,
@@ -362,13 +365,39 @@ function classifyCryptoSentiment(prompt: string): {
   rationale: string;
 } {
   const text = prompt.toLowerCase();
-  const bullish = ["breakout", "pump", "rally", "up", "green", "buy", "accumulate", "ath", "etf", "inflow"];
-  const bearish = ["dump", "crash", "down", "red", "sell", "liquidation", "hack", "outflow", "bear", "fear"];
+  const bullish = [
+    "breakout",
+    "pump",
+    "rally",
+    "up",
+    "green",
+    "buy",
+    "accumulate",
+    "ath",
+    "etf",
+    "inflow",
+  ];
+  const bearish = [
+    "dump",
+    "crash",
+    "down",
+    "red",
+    "sell",
+    "liquidation",
+    "hack",
+    "outflow",
+    "bear",
+    "fear",
+  ];
   const bullScore = bullish.filter((word) => text.includes(word)).length;
   const bearScore = bearish.filter((word) => text.includes(word)).length;
 
   if (bullScore === bearScore) {
-    return { label: "neutral", confidence: 0.62, rationale: "mixed or low-conviction market signal" };
+    return {
+      label: "neutral",
+      confidence: 0.62,
+      rationale: "mixed or low-conviction market signal",
+    };
   }
 
   if (bullScore > bearScore) {

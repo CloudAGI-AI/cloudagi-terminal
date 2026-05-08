@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
-import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import * as React from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -94,7 +94,7 @@ export default function SellPage() {
                   "flex-1 text-center text-xs font-mono py-1.5 rounded border",
                   s.id === _step
                     ? "border-[#00d184] text-[#00d184]"
-                    : "border-[var(--color-border,#2a2a2a)] text-[var(--color-muted,#888)]"
+                    : "border-[var(--color-border,#2a2a2a)] text-[var(--color-muted,#888)]",
                 )}
               >
                 {i + 1}. {s.label}
@@ -143,8 +143,8 @@ export default function SellPage() {
             Collateral deposit
           </h2>
           <p className="text-xs font-mono text-[var(--color-muted,#888)] mb-3">
-            Minimum stake: <span className="text-[#00d184]">0.5 SOL</span> — locked
-            during the agent&apos;s active period as slashing collateral.
+            Minimum stake: <span className="text-[#00d184]">0.5 SOL</span> — locked during the
+            agent&apos;s active period as slashing collateral.
           </p>
           <Button variant="secondary" size="sm">
             Post stake
@@ -183,7 +183,7 @@ export default function SellPage() {
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
             </div>
@@ -207,7 +207,7 @@ export default function SellPage() {
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
             </div>
@@ -231,7 +231,7 @@ export default function SellPage() {
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
             </div>
@@ -250,15 +250,13 @@ export default function SellPage() {
                 aria-label="Price per million tokens (M-tok)"
                 min={0}
                 value={price}
-                onChange={(e) =>
-                  setPrice(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="e.g. 2"
                 className={cn(
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184] w-40"
+                  "focus:outline-none focus:border-[#00d184] w-40",
                 )}
               />
             </div>
@@ -284,17 +282,13 @@ export default function SellPage() {
                 placeholder="https://your-agent.example.com/api"
                 className={cn(
                   "rounded-md border",
-                  endpointError
-                    ? "border-red-500"
-                    : "border-[var(--color-border,#2a2a2a)]",
+                  endpointError ? "border-red-500" : "border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
-              {endpointError && (
-                <p className="text-xs font-mono text-red-400">{endpointError}</p>
-              )}
+              {endpointError && <p className="text-xs font-mono text-red-400">{endpointError}</p>}
             </div>
           </div>
         </section>
@@ -326,16 +320,14 @@ export default function SellPage() {
                 min={1}
                 value={maxPromptTokens}
                 onChange={(e) =>
-                  setMaxPromptTokens(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
+                  setMaxPromptTokens(e.target.value === "" ? "" : Number(e.target.value))
                 }
                 placeholder="8192"
                 className={cn(
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
             </div>
@@ -354,16 +346,14 @@ export default function SellPage() {
                 min={1}
                 value={maxOutputTokens}
                 onChange={(e) =>
-                  setMaxOutputTokens(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
+                  setMaxOutputTokens(e.target.value === "" ? "" : Number(e.target.value))
                 }
                 placeholder="2048"
                 className={cn(
                   "rounded-md border border-[var(--color-border,#2a2a2a)]",
                   "bg-[var(--color-surface-raised,#1a1a1a)]",
                   "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                  "focus:outline-none focus:border-[#00d184]"
+                  "focus:outline-none focus:border-[#00d184]",
                 )}
               />
             </div>

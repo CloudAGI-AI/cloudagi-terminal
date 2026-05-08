@@ -8,7 +8,7 @@
  * Chain-boundary interactions are mocked at the Solana RPC level.
  */
 
-import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { app } from "../app.js";
 import { get, post } from "../test-utils/fetch-helper.js";
 import { validCreateAgent } from "../test-utils/fixtures.js";
@@ -65,9 +65,7 @@ describe("invoke-flow: Step 1 — register agent", () => {
     });
     // RED: stub returns 501 — will fail until Wave 2
     expect(res.status).toBe(201);
-    expect(res.body.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    );
+    expect(res.body.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
     registeredAgentId = res.body.id;
   });
 });
@@ -88,7 +86,7 @@ describe("invoke-flow: Step 2 — list and discover registered agent", () => {
   it("should find the agent when filtering by its registered skill", async () => {
     const res = await get<{ data: Array<{ id: string; skills: string[] }>; total: number }>(
       app,
-      `/v1/agents?skill=summarize`
+      `/v1/agents?skill=summarize`,
     );
     expect(res.status).toBe(200);
     expect(res.body.total).toBeGreaterThan(0);
@@ -104,10 +102,7 @@ describe("invoke-flow: Step 2 — list and discover registered agent", () => {
 describe("invoke-flow: Step 3 — fetch agent by id", () => {
   it("should return 200 with the registered agent by id", async () => {
     // RED: stub always returns 404
-    const res = await get<{ id: string; provider: string }>(
-      app,
-      `/v1/agents/${registeredAgentId}`
-    );
+    const res = await get<{ id: string; provider: string }>(app, `/v1/agents/${registeredAgentId}`);
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(registeredAgentId);
     expect(res.body.provider).toBe(validCreateAgent.provider);
@@ -217,7 +212,7 @@ describe("invoke-flow: Step 6 — receipt is persisted and retrievable", () => {
   it("should appear in /v1/receipts filtered by agentId", async () => {
     const res = await get<{ data: Array<{ id: string; agentId: string }>; total: number }>(
       app,
-      `/v1/receipts?agentId=${registeredAgentId}`
+      `/v1/receipts?agentId=${registeredAgentId}`,
     );
     expect(res.status).toBe(200);
     // RED: receipts not persisted yet
@@ -228,7 +223,7 @@ describe("invoke-flow: Step 6 — receipt is persisted and retrievable", () => {
   it("should appear in /v1/receipts filtered by buyer wallet", async () => {
     const res = await get<{ data: Array<{ buyerWallet: string }> }>(
       app,
-      `/v1/receipts?buyer=${buyerWallet}`
+      `/v1/receipts?buyer=${buyerWallet}`,
     );
     expect(res.status).toBe(200);
     expect(res.body.data.length).toBeGreaterThan(0);
@@ -270,12 +265,9 @@ describe("invoke-flow: Step 7 — replay protection", () => {
   it("should reject a second invocation with the already-used payment nonce", async () => {
     const replayAuth = `x402 {"scheme":"x402/solana","nonce":"${paymentNonce}","payer":"${buyerWallet}","sig":"${buyerSig}"}`;
 
-    const res = await post(
-      app,
-      `/v1/agents/${registeredAgentId}/invoke`,
-      invokePayload,
-      { "X-Payment-Auth": replayAuth }
-    );
+    const res = await post(app, `/v1/agents/${registeredAgentId}/invoke`, invokePayload, {
+      "X-Payment-Auth": replayAuth,
+    });
     // Replayed nonce must be rejected with 402
     expect(res.status).toBe(402);
   });

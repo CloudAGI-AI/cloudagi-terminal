@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,8 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://cloudagi.ai"),
   openGraph: {
     title: "CloudAGI",
-    description:
-      "Sell tokens, not subscriptions. Settled in USDC on Solana.",
+    description: "Sell tokens, not subscriptions. Settled in USDC on Solana.",
     url: "https://cloudagi.ai",
     siteName: "CloudAGI",
     locale: "en_US",
@@ -20,8 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CloudAGI",
-    description:
-      "Sell tokens, not subscriptions. Settled in USDC on Solana.",
+    description: "Sell tokens, not subscriptions. Settled in USDC on Solana.",
   },
   icons: {
     icon: "/favicon.ico",

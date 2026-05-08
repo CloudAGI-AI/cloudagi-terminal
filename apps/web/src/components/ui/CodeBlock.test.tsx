@@ -1,3 +1,5 @@
+import { CodeBlock } from "@/components/ui/CodeBlock";
+import { fireEvent, render, screen, waitFor } from "@/test-utils";
 /**
  * CodeBlock component tests — Wave 1 RED phase.
  *
@@ -11,9 +13,7 @@
  *
  * Used in: seller onboarding instructions, receipt hash display, SDK code samples.
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@/test-utils";
-import { CodeBlock } from "@/components/ui/CodeBlock";
+import { describe, expect, it, vi } from "vitest";
 
 const SAMPLE_CODE = `bun run cloudagi serve --agent ./adapter.ts`;
 const SAMPLE_JSON = `{ "promptHash": "abc123", "outputHash": "def456" }`;
@@ -25,10 +25,12 @@ describe("CodeBlock — rendering", () => {
   });
 
   it("renders with role='region' and an accessible label", () => {
-    render(<CodeBlock language="bash" aria-label="Installation command">{SAMPLE_CODE}</CodeBlock>);
-    expect(
-      screen.getByRole("region", { name: /installation command/i })
-    ).toBeInTheDocument();
+    render(
+      <CodeBlock language="bash" aria-label="Installation command">
+        {SAMPLE_CODE}
+      </CodeBlock>,
+    );
+    expect(screen.getByRole("region", { name: /installation command/i })).toBeInTheDocument();
   });
 
   it("renders the language indicator label", () => {
@@ -40,7 +42,7 @@ describe("CodeBlock — rendering", () => {
     render(
       <CodeBlock language="typescript" filename="adapter.ts">
         {SAMPLE_CODE}
-      </CodeBlock>
+      </CodeBlock>,
     );
     expect(screen.getByText(/adapter\.ts/i)).toBeInTheDocument();
   });
@@ -53,7 +55,11 @@ describe("CodeBlock — rendering", () => {
 
 describe("CodeBlock — copy to clipboard", () => {
   it("renders a copy button when copyable prop is passed", () => {
-    render(<CodeBlock language="bash" copyable>{SAMPLE_CODE}</CodeBlock>);
+    render(
+      <CodeBlock language="bash" copyable>
+        {SAMPLE_CODE}
+      </CodeBlock>,
+    );
     expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
   });
 
@@ -66,7 +72,11 @@ describe("CodeBlock — copy to clipboard", () => {
     Object.assign(navigator, {
       clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
     });
-    render(<CodeBlock language="bash" copyable>{SAMPLE_CODE}</CodeBlock>);
+    render(
+      <CodeBlock language="bash" copyable>
+        {SAMPLE_CODE}
+      </CodeBlock>,
+    );
     fireEvent.click(screen.getByRole("button", { name: /copy/i }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /copied/i })).toBeInTheDocument();

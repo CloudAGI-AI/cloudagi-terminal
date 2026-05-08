@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/Button";
+import { fireEvent, render, screen } from "@/test-utils";
 /**
  * Button component tests — Wave 1 RED phase.
  *
@@ -10,9 +12,7 @@
  *   <Button disabled>
  *   <Button isLoading> — shows spinner, disables interaction
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@/test-utils";
-import { Button } from "@/components/ui/Button";
+import { describe, expect, it, vi } from "vitest";
 
 describe("Button — rendering", () => {
   it("renders a button element with the provided text label", () => {
@@ -35,10 +35,7 @@ describe("Button — rendering", () => {
 
   it("renders with variant='ghost' applying minimal background styles", () => {
     render(<Button variant="ghost">Ghost</Button>);
-    expect(screen.getByRole("button", { name: /ghost/i })).toHaveAttribute(
-      "data-variant",
-      "ghost"
-    );
+    expect(screen.getByRole("button", { name: /ghost/i })).toHaveAttribute("data-variant", "ghost");
   });
 
   it("renders with size='sm' applying small padding classes", () => {
@@ -60,7 +57,11 @@ describe("Button — disabled state", () => {
 
   it("does not fire onClick when disabled", () => {
     const handler = vi.fn();
-    render(<Button disabled onClick={handler}>Disabled</Button>);
+    render(
+      <Button disabled onClick={handler}>
+        Disabled
+      </Button>,
+    );
     fireEvent.click(screen.getByRole("button"));
     expect(handler).not.toHaveBeenCalled();
   });
@@ -85,7 +86,7 @@ describe("Button — asChild (Radix Slot)", () => {
     render(
       <Button asChild>
         <a href="/marketplace">Browse marketplace</a>
-      </Button>
+      </Button>,
     );
     expect(screen.getByRole("link", { name: /browse marketplace/i })).toBeInTheDocument();
   });

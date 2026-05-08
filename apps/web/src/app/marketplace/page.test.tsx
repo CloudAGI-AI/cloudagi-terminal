@@ -1,3 +1,4 @@
+import { fireEvent, render, screen, waitFor, within } from "@/test-utils";
 /**
  * /marketplace page tests — Wave 1 RED phase.
  *
@@ -10,8 +11,7 @@
  *   Story 12 — open a web terminal scoped to a single agent
  *   Story 13 — pre-authorize a session budget
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@/test-utils";
+import { describe, expect, it } from "vitest";
 import MarketplacePage from "./page";
 
 // ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ describe("MarketplacePage — layout and landmarks", () => {
     render(<MarketplacePage />);
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /marketplace|browse agents|discover/i })
+      screen.getByRole("heading", { name: /marketplace|browse agents|discover/i }),
     ).toBeInTheDocument();
   });
 
@@ -31,8 +31,7 @@ describe("MarketplacePage — layout and landmarks", () => {
     render(<MarketplacePage />);
     // Wave 2: filter panel should have role=search or aria-label containing "filter"
     expect(
-      screen.getByRole("search") ||
-      screen.getByRole("region", { name: /filter/i })
+      screen.getByRole("search") || screen.getByRole("region", { name: /filter/i }),
     ).toBeInTheDocument();
   });
 
@@ -65,9 +64,7 @@ describe("MarketplacePage — filtering (SPEC §3.2 story 11)", () => {
 
   it("renders a minimum reputation tier selector", () => {
     render(<MarketplacePage />);
-    expect(
-      screen.getByRole("combobox", { name: /reputation/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /reputation/i })).toBeInTheDocument();
   });
 
   it("filters agents by skill tag when a skill is entered", async () => {
@@ -112,7 +109,7 @@ describe("MarketplacePage — open terminal (SPEC §3.2 story 12)", () => {
     render(<MarketplacePage />);
     await waitFor(() => {
       expect(
-        screen.getAllByRole("button", { name: /open terminal/i }).length
+        screen.getAllByRole("button", { name: /open terminal/i }).length,
       ).toBeGreaterThanOrEqual(1);
     });
     const firstCTA = screen.getAllByRole("button", { name: /open terminal/i })[0]!;
@@ -143,9 +140,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
     await waitFor(() => {
       const firstCard = screen.getAllByRole("article")[0]!;
       // Wave 2: skill tags should have data-slot="badge" or role marker
-      expect(
-        within(firstCard).getAllByRole("listitem").length
-      ).toBeGreaterThanOrEqual(1);
+      expect(within(firstCard).getAllByRole("listitem").length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -161,9 +156,7 @@ describe("MarketplacePage — agent card fields (SPEC §3.2 story 11)", () => {
     render(<MarketplacePage />);
     await waitFor(() => {
       const firstCard = screen.getAllByRole("article")[0]!;
-      expect(
-        within(firstCard).getByText(/active|paused|slashed/i)
-      ).toBeInTheDocument();
+      expect(within(firstCard).getByText(/active|paused|slashed/i)).toBeInTheDocument();
     });
   });
 });

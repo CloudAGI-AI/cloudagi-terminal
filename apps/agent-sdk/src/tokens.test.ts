@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { countTokens, computeCostLamports } from "./tokens.js";
+import { computeCostLamports, countTokens } from "./tokens.js";
 
 // ---------------------------------------------------------------------------
 // countTokens — sanity / always-green

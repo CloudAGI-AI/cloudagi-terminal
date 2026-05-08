@@ -14,8 +14,8 @@ export const validCreateAgent: CreateAgent = {
   endpoint: "https://agent.example.com/invoke",
   skills: ["summarize", "classify"],
   pricing: {
-    perMTokensIn: 0.50,
-    perMTokensOut: 1.50,
+    perMTokensIn: 0.5,
+    perMTokensOut: 1.5,
   },
   stake: 1_000_000_000, // 1 SOL in lamports
 };
@@ -32,10 +32,10 @@ export const secondAgent: Agent = {
   endpoint: "https://agent2.example.com/invoke",
   skills: ["code-review", "refactor"],
   pricing: {
-    perMTokensIn: 1.00,
-    perMTokensOut: 2.00,
+    perMTokensIn: 1.0,
+    perMTokensOut: 2.0,
   },
-  reputation: 0.60,
+  reputation: 0.6,
   stake: 500_000_000,
 };
 
@@ -47,7 +47,7 @@ export const secondAgent: Agent = {
 export const agentMissingSkills = {
   provider: "9xDR7CeHZiDv3PivpLhHAp5p7KmdQnJZZbH1FYKRB1Zk",
   endpoint: "https://agent.example.com/invoke",
-  pricing: { perMTokensIn: 0.50, perMTokensOut: 1.50 },
+  pricing: { perMTokensIn: 0.5, perMTokensOut: 1.5 },
   stake: 1_000_000_000,
 };
 
@@ -72,14 +72,14 @@ export const agentInvalidReputation = {
 /** Negative pricing */
 export const agentNegativePricing = {
   ...validCreateAgent,
-  pricing: { perMTokensIn: -1, perMTokensOut: 1.50 },
+  pricing: { perMTokensIn: -1, perMTokensOut: 1.5 },
 };
 
 /** Missing provider */
 export const agentMissingProvider = {
   endpoint: "https://agent.example.com/invoke",
   skills: ["summarize"],
-  pricing: { perMTokensIn: 0.50, perMTokensOut: 1.50 },
+  pricing: { perMTokensIn: 0.5, perMTokensOut: 1.5 },
   stake: 1_000_000_000,
 };
 

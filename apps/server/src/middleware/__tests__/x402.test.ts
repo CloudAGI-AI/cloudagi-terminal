@@ -5,10 +5,10 @@
  * the MVP payment middleware.
  */
 
-import { describe, it, expect } from "vitest";
 import { Hono } from "hono";
+import { describe, expect, it } from "vitest";
 import { x402Middleware } from "../../middleware/x402.js";
-import { get, post } from "../../test-utils/fetch-helper.js";
+import { post } from "../../test-utils/fetch-helper.js";
 import { mockPaymentAuthHeader, replayedNonce } from "../../test-utils/fixtures.js";
 
 // Helper: build a minimal Hono app with x402 middleware on a test route
@@ -74,41 +74,66 @@ describe("x402Middleware — 402 challenge generation", () => {
 describe("x402Middleware — signature verification", () => {
   it("should allow request with valid X-Payment-Auth header", async () => {
     const app = buildX402App({ requirePayment: true });
-    const res = await post(app, "/protected/resource", { data: "test" }, {
-      "X-Payment-Auth": mockPaymentAuthHeader,
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      { data: "test" },
+      {
+        "X-Payment-Auth": mockPaymentAuthHeader,
+      },
+    );
     expect(res.status).toBe(200);
   });
 
   it("should return 402 when X-Payment-Auth signature is cryptographically invalid", async () => {
     const app = buildX402App({ requirePayment: true });
-    const res = await post(app, "/protected/resource", { data: "test" }, {
-      "X-Payment-Auth": "x402 BADSIG_NOT_VALID_BASE64_OR_SOLANA",
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      { data: "test" },
+      {
+        "X-Payment-Auth": "x402 BADSIG_NOT_VALID_BASE64_OR_SOLANA",
+      },
+    );
     expect(res.status).toBe(402);
   });
 
   it("should return 402 when X-Payment-Auth uses an unsupported scheme", async () => {
     const app = buildX402App({ requirePayment: true });
-    const res = await post(app, "/protected/resource", { data: "test" }, {
-      "X-Payment-Auth": "stripe BADSIG",
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      { data: "test" },
+      {
+        "X-Payment-Auth": "stripe BADSIG",
+      },
+    );
     expect(res.status).toBe(402);
   });
 
   it("should return 402 when X-Payment-Auth header is an empty string", async () => {
     const app = buildX402App({ requirePayment: true });
-    const res = await post(app, "/protected/resource", { data: "test" }, {
-      "X-Payment-Auth": "",
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      { data: "test" },
+      {
+        "X-Payment-Auth": "",
+      },
+    );
     expect(res.status).toBe(402);
   });
 
   it("should return 402 when payment auth nonce does not match issued nonce", async () => {
     const app = buildX402App({ requirePayment: true });
-    const res = await post(app, "/protected/resource", { data: "test" }, {
-      "X-Payment-Auth": `x402 {"nonce":"wrong-nonce","sig":"fakesig"}`,
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      { data: "test" },
+      {
+        "X-Payment-Auth": `x402 {"nonce":"wrong-nonce","sig":"fakesig"}`,
+      },
+    );
     expect(res.status).toBe(402);
   });
 });
@@ -122,23 +147,38 @@ describe("x402Middleware — replay protection", () => {
     const app = buildX402App({ requirePayment: true });
 
     // First request with mock auth (would succeed if implemented)
-    await post(app, "/protected/resource", {}, {
-      "X-Payment-Auth": mockPaymentAuthHeader,
-    });
+    await post(
+      app,
+      "/protected/resource",
+      {},
+      {
+        "X-Payment-Auth": mockPaymentAuthHeader,
+      },
+    );
 
     // Second request with same auth token (replay)
-    const replayRes = await post(app, "/protected/resource", {}, {
-      "X-Payment-Auth": mockPaymentAuthHeader,
-    });
+    const replayRes = await post(
+      app,
+      "/protected/resource",
+      {},
+      {
+        "X-Payment-Auth": mockPaymentAuthHeader,
+      },
+    );
     expect(replayRes.status).toBe(402);
   });
 
   it("should return 402 when nonce timestamp is beyond replay window", async () => {
     const app = buildX402App({ requirePayment: true });
     const staleAuth = `x402 {"nonce":"${replayedNonce}","sig":"stalesig","ts":0}`;
-    const res = await post(app, "/protected/resource", {}, {
-      "X-Payment-Auth": staleAuth,
-    });
+    const res = await post(
+      app,
+      "/protected/resource",
+      {},
+      {
+        "X-Payment-Auth": staleAuth,
+      },
+    );
     expect(res.status).toBe(402);
   });
 
@@ -149,7 +189,7 @@ describe("x402Middleware — replay protection", () => {
       app,
       "/protected/resource",
       {},
-      { "X-Payment-Auth": mockPaymentAuthHeader }
+      { "X-Payment-Auth": mockPaymentAuthHeader },
     );
     expect(replayRes.body.error?.code).toBe("REPLAY_DETECTED");
   });

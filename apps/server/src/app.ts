@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { requestLogger } from "./middleware/logging.js";
 import { agents } from "./routes/agents.js";
-import { invoke } from "./routes/invoke.js";
-import { receipts } from "./routes/receipts.js";
 import { feed } from "./routes/feed.js";
+import { invoke } from "./routes/invoke.js";
 import { leaderboard } from "./routes/leaderboard.js";
+import { receipts } from "./routes/receipts.js";
 
 const app = new Hono();
 
@@ -36,7 +36,7 @@ app.get("/health", (c) => {
 
 // ── v1 routes ─────────────────────────────────────────────────────────────────
 app.route("/v1/agents", agents);
-app.route("/v1/agents", invoke);   // mounts /:id/invoke under /v1/agents
+app.route("/v1/agents", invoke); // mounts /:id/invoke under /v1/agents
 app.route("/v1/receipts", receipts);
 app.route("/v1/feed", feed);
 app.route("/v1/leaderboard", leaderboard);

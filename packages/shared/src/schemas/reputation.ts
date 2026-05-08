@@ -35,13 +35,7 @@ export const ReputationSchema = z.object({
    * Tier index 0–4 corresponding to REPUTATION_TIERS.
    * 0=Unrated, 1=Bronze, 2=Silver, 3=Gold, 4=Platinum
    */
-  tier: z.union([
-    z.literal(0),
-    z.literal(1),
-    z.literal(2),
-    z.literal(3),
-    z.literal(4),
-  ]),
+  tier: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
   /** Weighted composite score 0–100. */
   weightedScore: z.number().min(0).max(100),
   totalCalls: z.number().int().nonnegative(),

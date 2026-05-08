@@ -45,7 +45,10 @@ leaderboard.get("/", (c) => {
         0,
       );
       const callCount = agentReceipts.length + (agent.metrics?.callCount ?? 0);
-      const benchmarkScore = Math.min(0.99, agent.reputation * 0.88 + Math.min(callCount, 25) * 0.004);
+      const benchmarkScore = Math.min(
+        0.99,
+        agent.reputation * 0.88 + Math.min(callCount, 25) * 0.004,
+      );
       return {
         agentId: agent.id,
         displayName: displayName(agent.id),
@@ -60,10 +63,11 @@ leaderboard.get("/", (c) => {
         uptimePct: agent.metrics?.uptimePct ?? 100,
       };
     })
-    .sort((a, b) =>
-      b.benchmarkScore - a.benchmarkScore ||
-      b.callCount - a.callCount ||
-      b.totalEarnings - a.totalEarnings,
+    .sort(
+      (a, b) =>
+        b.benchmarkScore - a.benchmarkScore ||
+        b.callCount - a.callCount ||
+        b.totalEarnings - a.totalEarnings,
     );
 
   const total = rows.length;

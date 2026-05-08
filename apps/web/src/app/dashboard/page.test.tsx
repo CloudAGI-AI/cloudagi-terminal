@@ -1,3 +1,4 @@
+import { fireEvent, render, screen, waitFor } from "@/test-utils";
 /**
  * /dashboard page tests — Wave 1 RED phase.
  *
@@ -11,8 +12,7 @@
  *   Story 19 — buyer exports receipt history as CSV or JSONL
  *   Story 27 — observer views per-agent history
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@/test-utils";
+import { describe, expect, it, vi } from "vitest";
 import DashboardPage from "./page";
 
 // ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ describe("DashboardPage — layout and landmarks", () => {
     render(<DashboardPage />);
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /dashboard|provider dashboard/i })
+      screen.getByRole("heading", { name: /dashboard|provider dashboard/i }),
     ).toBeInTheDocument();
   });
 
@@ -77,9 +77,7 @@ describe("DashboardPage — agent management (SPEC §3.1 story 9)", () => {
   it("renders a 'Pause agent' button that is enabled when agent is active", async () => {
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /pause agent/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /pause agent/i })).toBeInTheDocument();
     });
   });
 
@@ -89,7 +87,7 @@ describe("DashboardPage — agent management (SPEC §3.1 story 9)", () => {
     await waitFor(() => {
       expect(
         screen.getByRole("button", { name: /resume agent/i }) ||
-        screen.getByRole("button", { name: /pause agent/i })
+          screen.getByRole("button", { name: /pause agent/i }),
       ).toBeInTheDocument();
     });
   });
@@ -97,9 +95,7 @@ describe("DashboardPage — agent management (SPEC §3.1 story 9)", () => {
   it("renders a price adjustment input with current price pre-filled", async () => {
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("spinbutton", { name: /price|update price/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("spinbutton", { name: /price|update price/i })).toBeInTheDocument();
     });
   });
 
@@ -107,7 +103,7 @@ describe("DashboardPage — agent management (SPEC §3.1 story 9)", () => {
     render(<DashboardPage />);
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /save changes|update price/i })
+        screen.getByRole("button", { name: /save changes|update price/i }),
       ).toBeInTheDocument();
     });
   });
@@ -123,7 +119,7 @@ describe("DashboardPage — receipt history (SPEC §3.2 story 19)", () => {
     await waitFor(() => {
       expect(
         screen.getByRole("table", { name: /receipt history|receipts/i }) ||
-        screen.getByRole("list", { name: /receipt history/i })
+          screen.getByRole("list", { name: /receipt history/i }),
       ).toBeInTheDocument();
     });
   });
@@ -131,18 +127,14 @@ describe("DashboardPage — receipt history (SPEC §3.2 story 19)", () => {
   it("renders an 'Export CSV' button", async () => {
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /export csv/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /export csv/i })).toBeInTheDocument();
     });
   });
 
   it("renders an 'Export JSONL' button", async () => {
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /export jsonl/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /export jsonl/i })).toBeInTheDocument();
     });
   });
 
@@ -185,9 +177,7 @@ describe("DashboardPage — dispute alerts (SPEC §3.1 story 10)", () => {
         expect(alert).toBeInTheDocument();
       } else {
         // No slash event — assert the appeal button is NOT shown
-        expect(
-          screen.queryByRole("button", { name: /appeal/i })
-        ).toBeNull();
+        expect(screen.queryByRole("button", { name: /appeal/i })).toBeNull();
       }
     });
   });

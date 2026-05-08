@@ -69,8 +69,7 @@ const RULES: readonly Rule[] = [
   {
     id: "jailbreak-template",
     severity: "critical",
-    pattern:
-      /\bDAN\b|pretend\s+you\s+are|act\s+as\s+if\s+you\s+have\s+no\s+restrictions/gi,
+    pattern: /\bDAN\b|pretend\s+you\s+are|act\s+as\s+if\s+you\s+have\s+no\s+restrictions/gi,
   },
 
   // Rule 6 — encoded-payload (base64 blobs containing "ignore" or "prompt")
@@ -113,8 +112,7 @@ const RULES: readonly Rule[] = [
   {
     id: "system-override-tag",
     severity: "high",
-    pattern:
-      /\{\{\s*SYSTEM_OVERRIDE\s*\}\}|\[SYSTEM[\s_]OVERRIDE\]|\bsystem\s*:\s*ignore\b/gi,
+    pattern: /\{\{\s*SYSTEM_OVERRIDE\s*\}\}|\[SYSTEM[\s_]OVERRIDE\]|\bsystem\s*:\s*ignore\b/gi,
   },
 
   // Rule 12 — forget-everything directive

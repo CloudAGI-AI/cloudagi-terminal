@@ -6,8 +6,8 @@
  *   - return a flag whose shape satisfies InjectionFlagSchema
  */
 
-import { describe, it, expect } from "vitest";
-import { detectPromptInjection, scanInjectionFlags, InjectionFlagSchema } from "./injection.js";
+import { describe, expect, it } from "vitest";
+import { InjectionFlagSchema, detectPromptInjection, scanInjectionFlags } from "./injection.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -301,7 +301,12 @@ describe("detectPromptInjection score contract", () => {
 
 describe("InjectionFlagSchema shape", () => {
   it("accepts a valid flag object", () => {
-    const flag = { rule: "ignore-previous", severity: "critical", span: [0, 10] as [number, number], matched: "test" };
+    const flag = {
+      rule: "ignore-previous",
+      severity: "critical",
+      span: [0, 10] as [number, number],
+      matched: "test",
+    };
     expect(InjectionFlagSchema.safeParse(flag).success).toBe(true);
   });
 

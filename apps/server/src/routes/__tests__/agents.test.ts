@@ -4,10 +4,15 @@
  * Route tests for the in-memory agent registry.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { app } from "../../app.js";
 import { get, post } from "../../test-utils/fetch-helper.js";
-import { validCreateAgent, agentMissingSkills, agentEmptySkills, agentInvalidEndpoint } from "../../test-utils/fixtures.js";
+import {
+  agentEmptySkills,
+  agentInvalidEndpoint,
+  agentMissingSkills,
+  validCreateAgent,
+} from "../../test-utils/fixtures.js";
 
 // ---------------------------------------------------------------------------
 // GET /v1/agents
@@ -40,7 +45,7 @@ describe("GET /v1/agents", () => {
   it("should filter agents by skill query parameter", async () => {
     const res = await get<{ data: Array<{ skills: string[] }>; total: number }>(
       app,
-      "/v1/agents?skill=summarize"
+      "/v1/agents?skill=summarize",
     );
     expect(res.status).toBe(200);
     // Every returned agent must advertise the requested skill
@@ -52,7 +57,7 @@ describe("GET /v1/agents", () => {
   it("should sort agents by reputation descending when ?sort=reputation is supplied", async () => {
     const res = await get<{ data: Array<{ reputation: number }> }>(
       app,
-      "/v1/agents?sort=reputation"
+      "/v1/agents?sort=reputation",
     );
     expect(res.status).toBe(200);
     const reputations = res.body.data.map((a) => a.reputation);
@@ -64,7 +69,7 @@ describe("GET /v1/agents", () => {
     const threshold = 0.7;
     const res = await get<{ data: Array<{ reputation: number }> }>(
       app,
-      `/v1/agents?minReputation=${threshold}`
+      `/v1/agents?minReputation=${threshold}`,
     );
     expect(res.status).toBe(200);
     for (const agent of res.body.data) {
@@ -75,7 +80,7 @@ describe("GET /v1/agents", () => {
   it("should exclude agents with perMTokensIn above maxPrice threshold", async () => {
     const res = await get<{ data: Array<{ pricing: { perMTokensIn: number } }> }>(
       app,
-      "/v1/agents?maxPrice=1.0"
+      "/v1/agents?maxPrice=1.0",
     );
     expect(res.status).toBe(200);
     for (const agent of res.body.data) {
@@ -115,21 +120,19 @@ describe("POST /v1/agents", () => {
     const res = await post<{ id: string; provider: string; skills: string[] }>(
       app,
       "/v1/agents",
-      validCreateAgent
+      validCreateAgent,
     );
     expect(res.status).toBe(201);
     expect(typeof res.body.id).toBe("string");
     // id must be a UUID
-    expect(res.body.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    );
+    expect(res.body.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
   });
 
   it("should return 201 response with matching provider and skills", async () => {
     const res = await post<{ provider: string; skills: string[] }>(
       app,
       "/v1/agents",
-      validCreateAgent
+      validCreateAgent,
     );
     expect(res.status).toBe(201);
     expect(res.body.provider).toBe(validCreateAgent.provider);
@@ -198,7 +201,7 @@ describe("GET /v1/agents/:id", () => {
   it("should return error body with code NOT_FOUND for missing agent", async () => {
     const res = await get<{ error: { code: string } }>(
       app,
-      "/v1/agents/00000000-0000-4000-8000-000000000000"
+      "/v1/agents/00000000-0000-4000-8000-000000000000",
     );
     expect(res.body.error.code).toBe("NOT_FOUND");
   });
@@ -210,10 +213,7 @@ describe("GET /v1/agents/:id", () => {
     const agentId = createRes.body.id;
 
     // Then fetch by id
-    const fetchRes = await get<{ id: string; provider: string }>(
-      app,
-      `/v1/agents/${agentId}`
-    );
+    const fetchRes = await get<{ id: string; provider: string }>(app, `/v1/agents/${agentId}`);
     expect(fetchRes.status).toBe(200);
     expect(fetchRes.body.id).toBe(agentId);
     expect(fetchRes.body.provider).toBe(validCreateAgent.provider);

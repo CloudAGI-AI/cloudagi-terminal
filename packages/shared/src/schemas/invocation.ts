@@ -59,14 +59,7 @@ export const InvocationSchema = z.object({
   // --- Execution ---
   startedAt: z.string().datetime({ offset: true }),
   completedAt: z.string().datetime({ offset: true }).optional(),
-  status: z.enum([
-    "pending_intent",
-    "running",
-    "completed",
-    "partial",
-    "failed",
-    "refunded",
-  ]),
+  status: z.enum(["pending_intent", "running", "completed", "partial", "failed", "refunded"]),
 
   // --- Output ---
   /** Encrypted at rest. */

@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  PLATFORM_FEE_BPS,
-  PROVIDER_FEE_BPS,
-  FACILITATOR_FEE_BPS,
-  TOTAL_FEE_BPS,
-  MIN_STAKE_LAMPORTS,
-  DEFAULT_DISPUTE_WINDOW_MS,
-  REPUTATION_TIERS,
   ALGORITHM_VERSION,
   BPS_DENOMINATOR,
+  DEFAULT_DISPUTE_WINDOW_MS,
+  FACILITATOR_FEE_BPS,
+  MIN_STAKE_LAMPORTS,
+  PLATFORM_FEE_BPS,
+  PROVIDER_FEE_BPS,
+  REPUTATION_TIERS,
+  TOTAL_FEE_BPS,
 } from "./constants.js";
 
 describe("fee basis points", () => {
@@ -75,13 +75,7 @@ describe("REPUTATION_TIERS", () => {
   });
 
   it("follows ascending order: Unrated < Bronze < Silver < Gold < Platinum", () => {
-    expect(REPUTATION_TIERS).toEqual([
-      "Unrated",
-      "Bronze",
-      "Silver",
-      "Gold",
-      "Platinum",
-    ]);
+    expect(REPUTATION_TIERS).toEqual(["Unrated", "Bronze", "Silver", "Gold", "Platinum"]);
   });
 
   it("all tier names are non-empty strings", () => {

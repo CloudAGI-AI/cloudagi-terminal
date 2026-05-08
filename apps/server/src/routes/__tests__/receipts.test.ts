@@ -5,10 +5,10 @@
  * are all unimplemented in the stub. All tests beyond the empty-list baseline fail.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { app } from "../../app.js";
 import { get, post } from "../../test-utils/fetch-helper.js";
-import { validCreateAgent, mockPaymentAuthHeader } from "../../test-utils/fixtures.js";
+import { mockPaymentAuthHeader, validCreateAgent } from "../../test-utils/fixtures.js";
 
 const validInvokeBody = {
   prompt: "Summarize this document for me.",
@@ -50,7 +50,7 @@ describe("GET /v1/receipts", () => {
     const buyerWallet = "Buyer111111111111111111111111111111111111111";
     const res = await get<{ data: Array<{ buyerWallet: string }> }>(
       app,
-      `/v1/receipts?buyer=${buyerWallet}`
+      `/v1/receipts?buyer=${buyerWallet}`,
     );
     expect(res.status).toBe(200);
     for (const receipt of res.body.data) {
@@ -63,7 +63,7 @@ describe("GET /v1/receipts", () => {
     const sellerWallet = "9xDR7CeHZiDv3PivpLhHAp5p7KmdQnJZZbH1FYKRB1Zk";
     const res = await get<{ data: Array<{ sellerWallet: string }> }>(
       app,
-      `/v1/receipts?seller=${sellerWallet}`
+      `/v1/receipts?seller=${sellerWallet}`,
     );
     expect(res.status).toBe(200);
     for (const receipt of res.body.data) {
@@ -76,7 +76,7 @@ describe("GET /v1/receipts", () => {
     const agentId = "550e8400-e29b-41d4-a716-446655440000";
     const res = await get<{ data: Array<{ agentId: string }> }>(
       app,
-      `/v1/receipts?agentId=${agentId}`
+      `/v1/receipts?agentId=${agentId}`,
     );
     expect(res.status).toBe(200);
     for (const receipt of res.body.data) {
@@ -163,7 +163,7 @@ describe("GET /v1/receipts/:id", () => {
 
     const listRes = await get<{ data: Array<{ id: string }> }>(
       app,
-      `/v1/receipts?agentId=${agentId}`
+      `/v1/receipts?agentId=${agentId}`,
     );
     const receiptId = listRes.body.data[0]?.id;
     expect(receiptId).toBeTruthy();

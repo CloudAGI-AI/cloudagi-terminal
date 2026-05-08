@@ -7,8 +7,8 @@
  * emission will be RED.
  */
 
-import { describe, expect, it, vi } from "vitest";
-import { serveAgent, invokeHandlerDirect } from "./serve.js";
+import { describe, expect, it } from "vitest";
+import { invokeHandlerDirect, serveAgent } from "./serve.js";
 import type { AgentHandler, InvocationContext, InvocationOutput } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -99,9 +99,7 @@ describe("invokeHandlerDirect — metering", () => {
 
   it("propagates errors thrown by the handler", async () => {
     const ctx = makeCtx();
-    await expect(
-      invokeHandlerDirect(errorHandler, ctx),
-    ).rejects.toThrow("handler exploded");
+    await expect(invokeHandlerDirect(errorHandler, ctx)).rejects.toThrow("handler exploded");
   });
 });
 
@@ -116,10 +114,12 @@ describe("serveAgent — invocation event emission (RED)", () => {
     const records: unknown[] = [];
 
     // This will fail until serveAgent accepts an onMetered option.
-    const server = (serveAgent as (h: AgentHandler, opts?: { onMetered?: (r: unknown) => void }) => ReturnType<typeof serveAgent>)(
-      echoHandler,
-      { onMetered: (r) => records.push(r) },
-    );
+    const server = (
+      serveAgent as (
+        h: AgentHandler,
+        opts?: { onMetered?: (r: unknown) => void },
+      ) => ReturnType<typeof serveAgent>
+    )(echoHandler, { onMetered: (r) => records.push(r) });
 
     const ctx = makeCtx({ prompt: "test metering" });
     await invokeHandlerDirect(echoHandler, ctx);
@@ -138,10 +138,12 @@ describe("serveAgent — invocation event emission (RED)", () => {
       timestamp: string;
     }> = [];
 
-    const server = (serveAgent as (h: AgentHandler, opts?: { onMetered?: (r: unknown) => void }) => ReturnType<typeof serveAgent>)(
-      echoHandler,
-      { onMetered: (r) => records.push(r as (typeof records)[0]) },
-    );
+    const server = (
+      serveAgent as (
+        h: AgentHandler,
+        opts?: { onMetered?: (r: unknown) => void },
+      ) => ReturnType<typeof serveAgent>
+    )(echoHandler, { onMetered: (r) => records.push(r as (typeof records)[0]) });
 
     const ctx = makeCtx({ prompt: "record fields test" });
     await invokeHandlerDirect(echoHandler, ctx);
@@ -178,11 +180,13 @@ describe("serveAgent — HTTP server (RED)", () => {
     // After close, any attempt to connect should fail.
     const connectAfterClose = (): Promise<void> =>
       new Promise((_, reject) => {
-        import("net").then(({ createConnection }) => {
-          const sock = createConnection({ port, host: "127.0.0.1" });
-          sock.once("error", reject);
-          sock.once("connect", () => reject(new Error("should not connect")));
-        }).catch(reject);
+        import("net")
+          .then(({ createConnection }) => {
+            const sock = createConnection({ port, host: "127.0.0.1" });
+            sock.once("error", reject);
+            sock.once("connect", () => reject(new Error("should not connect")));
+          })
+          .catch(reject);
       });
 
     await expect(connectAfterClose()).rejects.toThrow();

@@ -62,15 +62,11 @@ export function countTokens(text: string): number {
   const words = text.match(WORD_RE) ?? [];
   const puncts = text.match(PUNCT_RE) ?? [];
 
-  const charsPerToken = isCodeLike(text)
-    ? CODE_CHARS_PER_TOKEN
-    : PROSE_CHARS_PER_TOKEN;
+  const charsPerToken = isCodeLike(text) ? CODE_CHARS_PER_TOKEN : PROSE_CHARS_PER_TOKEN;
 
   // Word tokens: ceil(totalWordChars / charsPerToken).
   const wordCharCount = words.reduce((sum, w) => sum + w.length, 0);
-  const wordTokens = wordCharCount > 0
-    ? Math.ceil(wordCharCount / charsPerToken)
-    : 0;
+  const wordTokens = wordCharCount > 0 ? Math.ceil(wordCharCount / charsPerToken) : 0;
 
   // Punctuation: each distinct punctuation character is approximately 1 token,
   // but sequences of the same punct merge (e.g. "..." = 1 token). Group runs.
