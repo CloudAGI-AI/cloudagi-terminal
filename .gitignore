@@ -62,3 +62,7 @@ Thumbs.db
 .omc/
 
 # Legacy worktree location
+
+# runtime waitlist store
+apps/web/.waitlist/
+apps/web/next-env.d.ts

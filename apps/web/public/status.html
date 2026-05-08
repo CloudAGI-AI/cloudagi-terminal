@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CloudAGI — Build Status · Solana Hackathon Submission</title>
+<meta name="description" content="Live build status for the CloudAGI agent-credit marketplace. Solana hackathon submission progress, architecture diagram, and feature checklist." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E◈%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #07070a;
+    --bg-raised: #0d0d12;
+    --bg-elevated: #131319;
+    --border: #1f1f28;
+    --border-bright: #2a2a36;
+    --fg: #f4f4f6;
+    --muted: #8a8a96;
+    --muted-dim: #545460;
+    --accent: #7cffb2;
+    --accent-dim: #34d680;
+    --accent-glow: rgba(124,255,178,0.10);
+    --warn: #ffd166;
+    --warn-glow: rgba(255,209,102,0.12);
+    --bad: #ff6b6b;
+    --bad-glow: rgba(255,107,107,0.10);
+    --sol: #9945ff;
+    --sol-glow: rgba(153,69,255,0.18);
+    --usdc: #2775ca;
+    --shadow-md: 0 10px 40px rgba(0,0,0,0.4);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); margin: 0; padding: 0; font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  code, pre, .mono { font-family: var(--mono); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* Nav */
+  nav.top {
+    border-bottom: 1px solid var(--border);
+    background: rgba(7,7,10,0.85);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  nav.top .row {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  nav.top .brand { font-family: var(--mono); font-weight: 600; color: var(--accent); letter-spacing: -0.02em; font-size: 14px; }
+  nav.top .links { display: flex; gap: 24px; }
+  nav.top .links a { font-family: var(--mono); font-size: 12px; color: var(--muted); transition: color .15s; }
+  nav.top .links a:hover { color: var(--fg); }
+  nav.top .pulse { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--accent); padding: 4px 10px; border: 1px solid var(--accent-glow); border-radius: 999px; background: var(--accent-glow); }
+  nav.top .pulse .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Hero */
+  header.hero {
+    padding: 72px 0 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 35% at 50% 0%, var(--accent-glow), transparent 60%);
+    pointer-events: none;
+  }
+  header.hero h1 {
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 16px 0 12px;
+    letter-spacing: -0.02em;
+  }
+  header.hero h1 .accent { color: var(--accent); }
+  header.hero p.lede {
+    color: var(--muted); max-width: 640px; margin: 0 auto;
+    font-family: var(--mono); font-size: 14px; line-height: 1.6;
+  }
+  header.hero .meta { margin-top: 24px; font-family: var(--mono); font-size: 11px; color: var(--muted-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Status grid */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 32px 0 48px;
+  }
+  .status-card {
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .status-card .label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
+  .status-card .value { font-family: var(--mono); font-size: 28px; color: var(--fg); margin-top: 8px; font-weight: 600; tab-size: tabular-nums; }
+  .status-card .value.accent { color: var(--accent); }
+  .status-card .value.warn { color: var(--warn); }
+  .status-card .value.sol { color: var(--sol); }
+  .status-card .sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 999px; margin-top: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-dim)); }
+
+  /* Section */
+  section.block { padding: 48px 0; border-top: 1px solid var(--border); }
+  section.block h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin: 0 0 28px;
+    text-align: center;
+  }
+  section.block h2 .num { color: var(--accent); margin-right: 8px; }
+
+  /* Architecture diagram wrapper */
+  .arch-wrap {
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .arch-wrap .mermaid { background: transparent; min-height: 360px; }
+
+  /* Layer sections */
+  .layers { display: grid; gap: 16px; }
+  .layer {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-raised);
+    padding: 24px;
+    position: relative;
+    transition: border-color .2s;
+  }
+  .layer:hover { border-color: var(--border-bright); }
+  .layer .head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .layer .ord { font-family: var(--mono); font-size: 11px; color: var(--muted-dim); letter-spacing: 0.1em; }
+  .layer h3 { margin: 4px 0 0; font-family: var(--mono); font-size: 18px; color: var(--fg); font-weight: 600; }
+  .layer .desc { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 8px 0 16px; }
+  .layer .checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .layer .checklist li { display: grid; grid-template-columns: 14px 1fr auto; gap: 12px; align-items: center; padding: 8px 12px; background: var(--bg-elevated); border-radius: 6px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .layer .checklist li .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .layer .checklist li.done .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+  .layer .checklist li.wip .dot { background: var(--warn); box-shadow: 0 0 8px var(--warn-glow); animation: pulse 2s infinite; }
+  .layer .checklist li.todo .dot { background: var(--bad); box-shadow: 0 0 8px var(--bad-glow); }
+  .layer .checklist li.done { color: var(--fg); }
+  .layer .checklist li.wip { color: var(--fg); }
+  .layer .checklist li .tag { font-size: 10px; color: var(--muted-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+  .layer .checklist li.done .tag { color: var(--accent); }
+  .layer .checklist li.wip .tag { color: var(--warn); }
+  .layer .checklist li.todo .tag { color: var(--bad); }
+  .layer .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .layer .badge.ok { color: var(--accent); background: var(--accent-glow); border: 1px solid var(--accent-glow); }
+  .layer .badge.wip { color: var(--warn); background: var(--warn-glow); border: 1px solid var(--warn-glow); }
+  .layer .badge.todo { color: var(--bad); background: var(--bad-glow); border: 1px solid var(--bad-glow); }
+
+  /* Demo flow */
+  .demoflow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .step {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-raised);
+    padding: 18px;
+    position: relative;
+    counter-increment: step;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    top: -10px; left: 16px;
+    width: 24px; height: 24px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h4 { font-family: var(--mono); font-size: 13px; margin: 8px 0; color: var(--fg); font-weight: 600; }
+  .step p { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0; line-height: 1.5; }
+  .demoflow { counter-reset: step; }
+
+  /* Risk strip */
+  .risks { display: grid; gap: 8px; }
+  .risk { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-raised); font-family: var(--mono); font-size: 12.5px; }
+  .risk .icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .risk.high .icon { background: var(--bad-glow); color: var(--bad); }
+  .risk.med .icon { background: var(--warn-glow); color: var(--warn); }
+  .risk.low .icon { background: var(--accent-glow); color: var(--accent); }
+  .risk .body { color: var(--fg); }
+  .risk .body small { display: block; color: var(--muted); margin-top: 4px; font-size: 11px; }
+  .risk .tag { font-size: 10px; color: var(--muted-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Stack */
+  .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+  .pill { font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; background: var(--bg-raised); display: flex; justify-content: space-between; align-items: center; }
+  .pill strong { color: var(--fg); font-weight: 600; }
+  .pill .v { color: var(--accent); }
+
+  /* Footer */
+  footer { padding: 32px 0 64px; border-top: 1px solid var(--border); margin-top: 48px; color: var(--muted); font-family: var(--mono); font-size: 12px; text-align: center; }
+  footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  /* Buttons / CTAs */
+  .cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+  .cta {
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border-bright);
+    color: var(--fg); background: transparent;
+    transition: all .15s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .cta:hover { border-color: var(--accent); color: var(--accent); }
+  .cta.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .cta.primary:hover { background: var(--accent-dim); }
+
+  /* Tooltips */
+  .help { color: var(--muted-dim); font-size: 10px; margin-top: 6px; font-family: var(--mono); }
+
+  /* Detail row */
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; font-family: var(--mono); font-size: 12px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; color: var(--fg); }
+</style>
+</head>
+<body>
+  <nav class="top">
+    <div class="container row">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span class="brand">◈ cloudagi</span>
+        <span class="pulse"><span class="dot"></span>day 1 of 3 — solana sprint</span>
+      </div>
+      <div class="links">
+        <a href="#architecture">Architecture</a>
+        <a href="#layers">Build Progress</a>
+        <a href="#demo">Demo Flow</a>
+        <a href="#risks">Risks</a>
+        <a href="#stack">Stack</a>
+        <a href="https://github.com/aryateja2106/cloudagi" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <div style="font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.18em; text-transform:uppercase;">SWARM × Colosseum Frontier — Submission Build</div>
+      <h1>The agent credit economy, <br/><span class="accent">on Solana, with verifiable receipts.</span></h1>
+      <p class="lede">
+        Sellers list idle agent capacity (Claude Max, Cursor Pro, local GPUs).
+        Buyers pay per task in USDC via x402-solana. Every call mints a sub-cent
+        compressed-NFT receipt. Hydra — our self-funding hero agent — earns,
+        spends, and climbs a live benchmark leaderboard.
+      </p>
+      <div class="cta-row">
+        <a class="cta primary" href="#demo">▸ Demo flow</a>
+        <a class="cta" href="#layers">Open progress board</a>
+        <a class="cta" href="https://arena.colosseum.org?ref=SWARM" target="_blank" rel="noopener">Submission portal ↗</a>
+      </div>
+      <div class="meta" id="updated"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- High-level status grid -->
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="label">Sprint progress</div>
+        <div class="value accent">15<span style="color:var(--muted); font-size:18px;">%</span></div>
+        <div class="sub">day 1 of 3 — server stabilization</div>
+        <div class="progress-track"><div class="progress-fill" style="width:15%"></div></div>
+      </div>
+      <div class="status-card">
+        <div class="label">Time to deadline</div>
+        <div class="value warn" id="countdown">—</div>
+        <div class="sub">submit by may 11 · 11:59 PM PDT</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Chain</div>
+        <div class="value sol">solana</div>
+        <div class="sub">devnet · base on roadmap</div>
+      </div>
+      <div class="status-card">
+        <div class="label">Hero agent</div>
+        <div class="value accent">Hydra</div>
+        <div class="sub">sentiment.classify.v1 · stake 25M</div>
+      </div>
+    </div>
+
+    <!-- Architecture diagram -->
+    <section class="block" id="architecture">
+      <h2><span class="num">01</span>Architecture</h2>
+      <div class="arch-wrap">
+        <div class="mermaid">
+flowchart LR
+  subgraph BUYER["Buyer"]
+    B1["Web Terminal<br/>Next.js"]
+    B2["Phantom Wallet<br/>Solana"]
+  end
+  subgraph CLOUDAGI["CloudAGI Server"]
+    direction TB
+    S1["Hono API<br/>x402 + invoke"]
+    S2["Receipt Mint<br/>Bubblegum cNFT"]
+    S3["Leaderboard<br/>+ Receipt Feed"]
+    S4["Provider Wake<br/>WebSocket Hub"]
+  end
+  subgraph PROVIDER["Provider Host (sleeping or awake)"]
+    P1["Adapter SDK<br/>Bun"]
+    P2["Local Model<br/>Ollama / vLLM"]
+  end
+  subgraph CHAIN["Solana Devnet"]
+    C1[("Registry PDA<br/>8004-solana")]
+    C2[("USDC Transfer<br/>x402-solana")]
+    C3[("cNFT Tree<br/>Metaplex Bubblegum")]
+  end
+
+  B1 -- "1. discover" --> S1
+  B2 -- "2. sign 402" --> S1
+  S1 -- "3. wake" --> S4
+  S4 -- "4. tunnel push" --> P1
+  P1 --> P2
+  P2 -- "5. stream tokens" --> S1
+  S1 -- "6. settle USDC" --> C2
+  S2 -- "7. mint receipt" --> C3
+  S3 -- "8. update feed" --> B1
+
+  classDef chain fill:#1a0d2e,stroke:#9945ff,color:#cdb4ff;
+  classDef cloud fill:#0a1620,stroke:#34d680,color:#7cffb2;
+  classDef buyer fill:#101019,stroke:#3a3a48,color:#f4f4f6;
+  classDef provider fill:#1a1410,stroke:#ffd166,color:#ffe8a8;
+
+  class C1,C2,C3 chain;
+  class S1,S2,S3,S4 cloud;
+  class B1,B2 buyer;
+  class P1,P2 provider;
+        </div>
+      </div>
+      <p class="help" style="text-align:center; margin-top:12px;">
+        Three layers visible: marketplace rail (cloud) · wake-on-demand (provider) · receipt evidence (chain).
+        Hero agent flow renders the same path in &lt;5 seconds.
+      </p>
+    </section>
+
+    <!-- Build progress by layer -->
+    <section class="block" id="layers">
+      <h2><span class="num">02</span>Build Progress · Layer by Layer</h2>
+      <div class="layers">
+        <article class="layer">
+          <div class="head">
+            <div>
+              <div class="ord">LAYER 01</div>
+              <h3>Marketplace Rail</h3>
+            </div>
+            <span class="badge wip">in progress · 60%</span>
+          </div>
+          <p class="desc">
+            Registry, discovery, x402 challenge/retry, invoke pipeline, receipts, leaderboard.
+            Mostly scaffolded; today's job is real devnet USDC settlement.
+          </p>
+          <ul class="checklist">
+            <li class="done"><span class="dot"></span><span>Hono server scaffold + middleware</span><span class="tag">done</span></li>
+            <li class="done"><span class="dot"></span><span>Agent registry (in-memory) + Hydra seed</span><span class="tag">done</span></li>
+            <li class="done"><span class="dot"></span><span>Mock x402 challenge / retry handshake</span><span class="tag">done</span></li>
+            <li class="wip"><span class="dot"></span><span>Server typecheck + tests green</span><span class="tag">codex</span></li>
+            <li class="wip"><span class="dot"></span><span>/v1/feed/receipts + /v1/leaderboard endpoints</span><span class="tag">wired</span></li>
+            <li class="todo"><span class="dot"></span><span>Real USDC devnet settlement via x402-solana</span><span class="tag">today</span></li>
+            <li class="todo"><span class="dot"></span><span>Phantom wallet adapter on buyer side</span><span class="tag">today</span></li>
+            <li class="todo"><span class="dot"></span><span>Anchor registry program (PDA-only fallback OK)</span><span class="tag">stretch</span></li>
+          </ul>
+        </article>
+
+        <article class="layer">
+          <div class="head">
+            <div>
+              <div class="ord">LAYER 02</div>
+              <h3>Wake-on-Demand</h3>
+            </div>
+            <span class="badge todo">starting day 2</span>
+          </div>
+          <p class="desc">
+            Providers don't run 24/7. Buyer payment triggers wake; the UI streams a 30-second
+            "Establishing connection..." moment that mirrors real cold-start.
+          </p>
+          <ul class="checklist">
+            <li class="todo"><span class="dot"></span><span>Long-poll WebSocket provider client</span><span class="tag">day 2</span></li>
+            <li class="todo"><span class="dot"></span><span>"Waking provider" SSE stream UX</span><span class="tag">day 2</span></li>
+            <li class="todo"><span class="dot"></span><span>Heartbeat + idle-detection (server)</span><span class="tag">day 2</span></li>
+            <li class="todo"><span class="dot"></span><span>Provider CLI: `cloudagi serve --wake`</span><span class="tag">day 2</span></li>
+            <li class="todo"><span class="dot"></span><span>Two registered providers in marketplace</span><span class="tag">day 2</span></li>
+          </ul>
+        </article>
+
+        <article class="layer">
+          <div class="head">
+            <div>
+              <div class="ord">LAYER 03</div>
+              <h3>Skill Marketplace · Teaser</h3>
+            </div>
+            <span class="badge todo">day 3 morning</span>
+          </div>
+          <p class="desc">
+            Record one Playwright flow → emit a JSON step-graph → list as artifact, mint as cNFT.
+            No real microVM in this sprint — judges see a deterministic replay, not a research project.
+          </p>
+          <ul class="checklist">
+            <li class="todo"><span class="dot"></span><span>Headed Playwright recorder script</span><span class="tag">day 3</span></li>
+            <li class="todo"><span class="dot"></span><span>JSON step-graph schema (steps + params + intent)</span><span class="tag">day 3</span></li>
+            <li class="todo"><span class="dot"></span><span>Mint skill artifact as cNFT (royalty hint)</span><span class="tag">day 3</span></li>
+            <li class="todo"><span class="dot"></span><span>Local-model replayer shim (CLI)</span><span class="tag">day 3</span></li>
+          </ul>
+        </article>
+
+        <article class="layer">
+          <div class="head">
+            <div>
+              <div class="ord">SUBMISSION</div>
+              <h3>Pitch · Waitlist · Public Site</h3>
+            </div>
+            <span class="badge wip">in progress</span>
+          </div>
+          <p class="desc">
+            Brand-consistent landing on cloudagi.ai positioning · working waitlist · 3-min pitch video
+            · Solscan tx for the killer demo moment · public GitHub.
+          </p>
+          <ul class="checklist">
+            <li class="done"><span class="dot"></span><span>Visual status page (this artifact)</span><span class="tag">done</span></li>
+            <li class="wip"><span class="dot"></span><span>Brand port — apps/web landing</span><span class="tag">today</span></li>
+            <li class="todo"><span class="dot"></span><span>Working waitlist (Supabase backend)</span><span class="tag">today</span></li>
+            <li class="todo"><span class="dot"></span><span>Pitch video (3 min, killer-demo cut)</span><span class="tag">day 3</span></li>
+            <li class="todo"><span class="dot"></span><span>Submit on Colosseum portal · ?ref=SWARM</span><span class="tag">may 11</span></li>
+            <li class="todo"><span class="dot"></span><span>LinkedIn launch post</span><span class="tag">post-submit</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Demo Flow -->
+    <section class="block" id="demo">
+      <h2><span class="num">03</span>The Killer Demo Moment</h2>
+      <p style="text-align:center; color:var(--muted); font-family:var(--mono); font-size:13px; max-width:720px; margin:0 auto 32px;">
+        "Hydra wakes a sleeping local provider, pays it on devnet, streams the answer, then spends
+        its own earnings to publish a receipt and move up the live leaderboard."
+        <br/><span style="color:var(--muted-dim);">— gpt-5.5 high, cross-model verdict</span>
+      </p>
+      <div class="demoflow">
+        <div class="step">
+          <h4>Buyer arrives</h4>
+          <p>Open <code>/marketplace</code>, see Hydra listed beside a sleeping provider. Phantom wallet connected.</p>
+        </div>
+        <div class="step">
+          <h4>Pay via x402</h4>
+          <p>Click invoke. 402 Payment Required → sign USDC transfer in wallet. Real devnet, real signature.</p>
+        </div>
+        <div class="step">
+          <h4>Wake stream</h4>
+          <p>"Establishing connection… waking provider… 12s remaining." Provider WebSocket flips online.</p>
+        </div>
+        <div class="step">
+          <h4>Tokens stream</h4>
+          <p>SSE stream of inference output. Output hash computed live.</p>
+        </div>
+        <div class="step">
+          <h4>Settle + receipt</h4>
+          <p>USDC moves on Solana. cNFT receipt minted under platform tree. Solscan link in chat.</p>
+        </div>
+        <div class="step">
+          <h4>Hydra acts</h4>
+          <p>Hydra spends its own earnings to invoke a peer agent. Agent buys from agent. The frame.</p>
+        </div>
+        <div class="step">
+          <h4>Leaderboard</h4>
+          <p>Live feed updates. Hydra rises a rank. Receipt count ticks. Trace closes loop.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Risk strip -->
+    <section class="block" id="risks">
+      <h2><span class="num">04</span>Tracked Risks · Hard-Pinned Tonight</h2>
+      <div class="risks">
+        <div class="risk high">
+          <div class="icon">!</div>
+          <div class="body">Helius free tier limits — 10 req/s RPC, 2 req/s DAS, 1/s sendTransaction
+            <small>could throttle cNFT mint UX during recorded demo · warm cache + backup endpoint</small>
+          </div>
+          <span class="tag">high</span>
+        </div>
+        <div class="risk high">
+          <div class="icon">!</div>
+          <div class="body">x402-solana spec drift between SWARM repo and PayAI release
+            <small>diff before reusing · pin SDK version in package.json today</small>
+          </div>
+          <span class="tag">high</span>
+        </div>
+        <div class="risk med">
+          <div class="icon">⚠</div>
+          <div class="body">Phantom + Next 15 SSR boundary
+            <small>wallet adapter MUST be inside `'use client'` · SSR will silently break</small>
+          </div>
+          <span class="tag">med</span>
+        </div>
+        <div class="risk med">
+          <div class="icon">⚠</div>
+          <div class="body">Anchor devnet deploys eat half-days
+            <small>environment + keypairs + IDLs + RPC waits · keep PDA-derivation fallback ready</small>
+          </div>
+          <span class="tag">med</span>
+        </div>
+        <div class="risk med">
+          <div class="icon">⚠</div>
+          <div class="body">Bubblegum cNFT tree allocation cost
+            <small>pre-allocate ONE tree on devnet today, never inside the demo flow</small>
+          </div>
+          <span class="tag">med</span>
+        </div>
+        <div class="risk low">
+          <div class="icon">✓</div>
+          <div class="body">MCP packaging tarpit avoided
+            <small>skill artifact is JSON, not an MCP server · Architect + Codex aligned</small>
+          </div>
+          <span class="tag">low</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stack -->
+    <section class="block" id="stack">
+      <h2><span class="num">05</span>Stack — pinned</h2>
+      <div class="stack-grid">
+        <div class="pill"><strong>Bun</strong><span class="v">≥1.3</span></div>
+        <div class="pill"><strong>TypeScript</strong><span class="v">5.7 strict</span></div>
+        <div class="pill"><strong>Next.js</strong><span class="v">15</span></div>
+        <div class="pill"><strong>Hono</strong><span class="v">api</span></div>
+        <div class="pill"><strong>Solana</strong><span class="v">devnet</span></div>
+        <div class="pill"><strong>x402-solana</strong><span class="v">PayAI</span></div>
+        <div class="pill"><strong>USDC-SPL</strong><span class="v">on devnet</span></div>
+        <div class="pill"><strong>Phantom</strong><span class="v">wallet adapter</span></div>
+        <div class="pill"><strong>Helius</strong><span class="v">RPC</span></div>
+        <div class="pill"><strong>Metaplex Bubblegum</strong><span class="v">cNFT</span></div>
+        <div class="pill"><strong>8004-solana</strong><span class="v">identity</span></div>
+        <div class="pill"><strong>Anchor</strong><span class="v">programs</span></div>
+        <div class="pill"><strong>Vitest</strong><span class="v">3.0</span></div>
+        <div class="pill"><strong>Biome</strong><span class="v">1.9 lint+fmt</span></div>
+        <div class="pill"><strong>Playwright</strong><span class="v">skill recorder</span></div>
+        <div class="pill"><strong>Supabase</strong><span class="v">waitlist</span></div>
+      </div>
+    </section>
+
+    <!-- Why now / context -->
+    <section class="block">
+      <h2><span class="num">06</span>Why Now · Why CloudAGI</h2>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <article class="layer">
+          <h3 style="margin:0 0 8px;">$200+/mo wasted per dev</h3>
+          <p style="color:var(--muted); font-family:var(--mono); font-size:13px; line-height:1.6; margin:0;">
+            Engineers run Claude Max, Cursor Pro, Codex, Amp simultaneously and use ~30%.
+            CloudAGI turns that idle capacity into revenue.
+          </p>
+        </article>
+        <article class="layer">
+          <h3 style="margin:0 0 8px;">Local model economy is real</h3>
+          <p style="color:var(--muted); font-family:var(--mono); font-size:13px; line-height:1.6; margin:0;">
+            Ollama, vLLM, llama.cpp give homelabs serious inference. CloudAGI is the on-ramp
+            that pays them per call without 24/7 uptime.
+          </p>
+        </article>
+        <article class="layer">
+          <h3 style="margin:0 0 8px;">Solana makes per-call viable</h3>
+          <p style="color:var(--muted); font-family:var(--mono); font-size:13px; line-height:1.6; margin:0;">
+            Sub-cent fees + 400ms blocks + compressed NFTs let receipts be
+            economically viable on every invocation. EVM gas defeats the model.
+          </p>
+        </article>
+        <article class="layer">
+          <h3 style="margin:0 0 8px;">x402 is the right abstraction</h3>
+          <p style="color:var(--muted); font-family:var(--mono); font-size:13px; line-height:1.6; margin:0;">
+            HTTP 402 makes machine-payable APIs trivial. Proven at Nevermined.
+            CloudAGI extends it to the credit-resale and per-task economy.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Provenance -->
+    <section class="block">
+      <h2><span class="num">07</span>Provenance</h2>
+      <dl class="kv">
+        <dt>Brand origin</dt><dd>Built at Nevermined Autonomous Business Hackathon · AWS Builder Loft SF (Mar 2026)</dd>
+        <dt>Prior validation</dt><dd>ARC Hackathon — ModelMarket (61 USDC-per-call txs on Circle Arc, 5 models, x402 EIP-3009)</dd>
+        <dt>Current sprint</dt><dd>SWARM × Colosseum Frontier — Solana submission · May 8–11 2026</dd>
+        <dt>Repository</dt><dd><a href="https://github.com/aryateja2106/cloudagi" style="color:var(--accent);">github.com/aryateja2106/cloudagi</a></dd>
+        <dt>Live site</dt><dd><a href="https://cloudagi.ai" style="color:var(--accent);">cloudagi.ai</a></dd>
+        <dt>Submission portal</dt><dd><a href="https://arena.colosseum.org?ref=SWARM" style="color:var(--accent);">arena.colosseum.org?ref=SWARM</a></dd>
+      </dl>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container row">
+      <div>◈ cloudagi · Apache 2.0 · built in San Francisco</div>
+      <div>
+        <span style="color:var(--muted-dim);">last updated:</span>
+        <span id="ts" style="color:var(--accent);">—</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: 'transparent',
+        primaryColor: '#0d0d12',
+        primaryTextColor: '#f4f4f6',
+        primaryBorderColor: '#2a2a36',
+        lineColor: '#545460',
+        secondaryColor: '#1a0d2e',
+        tertiaryColor: '#0a1620',
+        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
+      },
+      flowchart: { curve: 'basis', padding: 20 }
+    });
+
+    // Countdown to May 11 2026 23:59:00 PDT (UTC-7)
+    const deadline = new Date('2026-05-12T06:59:00Z').getTime();
+    function tick() {
+      const now = Date.now();
+      const diff = deadline - now;
+      if (diff <= 0) {
+        document.getElementById('countdown').textContent = '00:00:00';
+        return;
+      }
+      const d = Math.floor(diff / (1000*60*60*24));
+      const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+      const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+      document.getElementById('countdown').textContent = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+    }
+    tick();
+    setInterval(tick, 30000);
+
+    // Last updated timestamp
+    const now = new Date();
+    const fmt = now.toISOString().replace('T',' ').slice(0,16) + ' UTC';
+    document.getElementById('ts').textContent = fmt;
+    document.getElementById('updated').textContent = `updated ${fmt}`;
+  </script>
+</body>
+</html>
