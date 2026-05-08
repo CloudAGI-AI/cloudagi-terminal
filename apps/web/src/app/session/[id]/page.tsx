@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 // ---------------------------------------------------------------------------
 
 interface SessionPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 type SessionState =
@@ -56,7 +56,7 @@ const INITIAL_PROMPT = "summarize the Q3 report";
 // ---------------------------------------------------------------------------
 
 export default function SessionPage({ params }: SessionPageProps) {
-  const agentId = params.id;
+  const { id: agentId } = React.use(params);
 
   // Start in intent-pending so Approve/Reject tests pass immediately.
   // Receipt/re-run/rating also visible because we show a persistent demo receipt.
@@ -88,9 +88,10 @@ export default function SessionPage({ params }: SessionPageProps) {
     ];
     let i = 0;
     const interval = setInterval(() => {
-      if (i < words.length) {
-        setStreamedText((prev) => prev + words[i]);
-        setTokenCount((prev) => prev + Math.floor(words[i].split(" ").length * 1.3));
+      const chunk = words[i];
+      if (chunk !== undefined) {
+        setStreamedText((prev) => prev + chunk);
+        setTokenCount((prev) => prev + Math.floor(chunk.split(" ").length * 1.3));
         i++;
       } else {
         clearInterval(interval);
@@ -144,7 +145,7 @@ export default function SessionPage({ params }: SessionPageProps) {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Page heading */}
         <h1 className="text-2xl font-mono font-semibold text-[var(--color-foreground,#f5f5f5)] mb-2">
-          Session — {agentId}
+          Session · {agentId}
         </h1>
         <p className="text-xs font-mono text-[var(--color-muted,#888)] mb-8">
           Agent terminal session
@@ -161,7 +162,7 @@ export default function SessionPage({ params }: SessionPageProps) {
             <span className="w-3 h-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
             <span className="w-3 h-3 rounded-full bg-[#28c840]" aria-hidden="true" />
             <span className="ml-2 text-xs font-mono text-[var(--color-muted,#888)]">
-              cloudagi — {agentId}
+              cloudagi · {agentId}
             </span>
           </div>
 
@@ -198,7 +199,7 @@ export default function SessionPage({ params }: SessionPageProps) {
               </>
             )}
             {isRejected && (
-              <p className="text-yellow-400">Rejected — session cancelled.</p>
+              <p className="text-yellow-400">Rejected. Session cancelled.</p>
             )}
           </div>
 
