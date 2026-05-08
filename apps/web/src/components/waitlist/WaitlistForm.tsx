@@ -6,9 +6,9 @@ import { cn } from "@/lib/cn";
 type Status = "idle" | "submitting" | "success" | "error";
 
 const ROLES = [
-  { id: "seller", label: "Seller — list idle credits" },
-  { id: "buyer", label: "Buyer — pay per task" },
-  { id: "builder", label: "Builder — open-source contributor" },
+  { id: "seller", label: "Seller. List idle credits or a local model." },
+  { id: "buyer", label: "Buyer. Pay per call in USDC." },
+  { id: "builder", label: "Builder. Contribute to the open source runtime." },
 ] as const;
 
 export function WaitlistForm() {

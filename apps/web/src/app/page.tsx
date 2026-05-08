@@ -2,38 +2,38 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// Data ────────────────────────────────────────────────────────────────────────
 
 const PROBLEM_STATS = [
-  { value: "~30%", label: "Average utilization of AI agent subscriptions" },
-  { value: "$200+", label: "Monthly spend on agent tools per developer" },
+  { value: "~30%", label: "Average utilization on paid AI subscriptions" },
+  { value: "0", label: "Public markets where you can resell tokens you generate" },
   { value: "5+", label: "Active agent subscriptions per AI engineer" },
 ] as const;
 
 const HOW_IT_WORKS = [
   {
     n: "01",
-    title: "List Your Idle Credits",
+    title: "List your capacity",
     body:
-      "Connect your agent subscriptions. CloudAGI detects how much capacity is sitting unused and lets you list it on the marketplace with one click. You set your price.",
+      "Connect a credit pool, a local Ollama endpoint, or a fine-tuned agent. Set a price in USDC per million tokens. CloudAGI advertises it on the marketplace.",
   },
   {
     n: "02",
-    title: "Proxy Execution — No Credential Sharing",
+    title: "Buyers pay per call",
     body:
-      "Buyers submit tasks via the CloudAGI API. Tasks route through your active session. Your credentials never leave your machine. The buyer gets the output, you get paid.",
+      "A buyer hits your endpoint over HTTP. The server returns 402 with a price quote. The buyer signs a USDC payment on Solana. Settlement clears in under a second. Your endpoint streams the response.",
   },
   {
     n: "03",
-    title: "Instant Settlement via x402",
+    title: "Receipts that prove the work",
     body:
-      "Payments settle via the x402 protocol — HTTP-native USDC on Solana. No invoices. No net-30. Funds land in your wallet the moment the task completes.",
+      "Every call mints a sub-cent compressed NFT receipt. Input hash, output hash, token usage, settlement signature. Auditable forever. Useful for governance, accounting, and reputation.",
   },
   {
     n: "04",
-    title: "Verifiable cNFT Receipts",
+    title: "Reputation that compounds",
     body:
-      "Every call mints a sub-cent compressed-NFT receipt with input hash, output hash, token usage, and settlement signature. Solana-native, auditable forever.",
+      "Providers earn a tokens per watt per dollar score over time. Buyers pick by efficiency. Dishonest providers get slashed. The marketplace gets cleaner the longer it runs.",
   },
 ] as const;
 
@@ -41,59 +41,59 @@ type CompareCell = boolean | "varies" | "partial";
 type CompareRow = readonly [feature: string, mine: CompareCell, theirs: CompareCell];
 
 const COMPARE: readonly CompareRow[] = [
-  ["No credential sharing", true, false],
-  ["Instant x402 settlement", true, false],
+  ["Sell tokens you generate yourself", true, false],
+  ["Register a local Ollama or vLLM endpoint", true, false],
+  ["USDC settlement on a public chain", true, "varies"],
   ["Per-call cNFT receipts", true, false],
-  ["Works with existing subscriptions", true, "varies"],
-  ["Open-source runtime (Local AGI)", true, false],
-  ["Multi-agent support", true, "partial"],
+  ["Open source runtime (Local AGI)", true, false],
+  ["Reputation that follows the wallet", true, "partial"],
 ];
 
 const PROJECTS = [
   {
     badge: "open source",
     title: "Local AGI",
-    sub: "Open-Source Agent Runtime",
+    sub: "Open source agent runtime",
     body:
-      "The open-source foundation of CloudAGI. Local AGI handles credit metering, proxy execution, and x402 payment settlement. Run it locally, contribute to the protocol, or build on top of it.",
+      "The runtime that powers CloudAGI. Local AGI handles credit metering, proxy execution, and x402 payment settlement. Run it locally, contribute to the protocol, or build on top of it.",
     chips: ["TypeScript", "Rust", "x402", "Solana", "USDC"],
     cta: { label: "View on GitHub", href: "https://github.com/aryateja2106/cloudagi" },
   },
   {
     badge: "beta",
     title: "Credit Probe CLI",
-    sub: "Detect Your Idle Agent Capacity",
+    sub: "Detect your idle agent capacity",
     body:
-      "A command-line tool that scans your installed agent subscriptions and shows exactly how much capacity you're wasting each month. First step before listing on the marketplace.",
+      "A command line tool that scans your installed agent subscriptions and shows exactly how much capacity you waste each month. First step before listing on the marketplace.",
     chips: ["TypeScript", "Bun", "Claude", "Cursor", "Codex"],
-    cta: { label: "Join Waitlist", href: "#waitlist" },
+    cta: { label: "Join waitlist", href: "#waitlist" },
   },
   {
     badge: "in development",
     title: "CloudAGI Marketplace",
-    sub: "Buy and Sell Agent Compute",
+    sub: "Buy and sell agent compute",
     body:
-      "The main platform. Browse available agent capacity, submit tasks via API, and settle instantly via x402. Built for AI engineers who need burst compute without committing to another subscription.",
+      "The main platform. Browse available capacity from credit pools and self-hosted models. Submit a task, pay in USDC, get a receipt on Solana. Built for engineers who need burst compute without another subscription.",
     chips: ["Next.js", "Hono", "x402", "Solana", "cNFT"],
-    cta: { label: "Join Waitlist", href: "#waitlist" },
+    cta: { label: "Join waitlist", href: "#waitlist" },
   },
 ] as const;
 
 const SELLER_LIST = [
   { name: "Claude Max", state: "68% idle", tone: "warn" as const },
-  { name: "Cursor Pro", state: "55% idle", tone: "warn" as const },
-  { name: "RTX 4090 (local)", state: "online", tone: "ok" as const },
-  { name: "Amp", state: "80% idle", tone: "warn" as const },
+  { name: "Gemma 3 8B (local)", state: "online", tone: "ok" as const },
+  { name: "Qwen3 7B (local)", state: "online", tone: "ok" as const },
+  { name: "Specialized agent", state: "online", tone: "ok" as const },
 ];
 
 const BUYER_LIST = [
   "No subscription needed",
-  "Pay per task",
-  "Burst capacity",
-  "Standardized pricing",
+  "Pay per call in USDC",
+  "Burst capacity on demand",
+  "Open weights, not just hosted",
 ];
 
-// ─── Components ──────────────────────────────────────────────────────────────
+// Components ─────────────────────────────────────────────────────────────────
 
 function NavBar() {
   return (
@@ -104,11 +104,12 @@ function NavBar() {
           <span className="font-semibold text-[var(--color-foreground)]">cloudagi</span>
         </Link>
         <nav aria-label="Primary" className="hidden sm:flex items-center gap-6 font-mono text-xs">
-          <a href="#how" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">How It Works</a>
-          <a href="#projects" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Open Source</a>
-          <a href="/status.html" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Build Status</a>
+          <a href="#how" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">How it works</a>
+          <a href="#thesis" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Thesis</a>
+          <a href="#projects" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Open source</a>
+          <a href="/status.html" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Build status</a>
           <a href="https://github.com/aryateja2106/cloudagi" target="_blank" rel="noopener noreferrer" className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">GitHub</a>
-          <a href="#waitlist" className="px-3 py-1.5 rounded-md bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[var(--color-accent-dim)] transition-colors font-medium">Join Waitlist</a>
+          <a href="#waitlist" className="px-3 py-1.5 rounded-md bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[var(--color-accent-dim)] transition-colors font-medium">Join waitlist</a>
         </nav>
       </div>
     </header>
@@ -144,14 +145,18 @@ function HeroSection() {
           id="hero-heading"
           className="mt-8 font-mono font-semibold tracking-tight text-[var(--color-foreground)] text-4xl sm:text-5xl md:text-6xl leading-[1.05]"
         >
-          Earn Back What
+          Sell tokens,
           <br />
-          <span className="text-[var(--color-accent)]">You Don&apos;t Use</span>
+          <span className="text-[var(--color-accent)]">not subscriptions.</span>
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-base sm:text-lg text-[var(--color-muted)] font-mono leading-relaxed">
-          You pay $20–$200/month for AI coding agents. You use maybe 30% of it.
-          CloudAGI helps you earn back at least 25% of your subscription by selling idle credits —
-          or buy compute at a fraction of retail.
+          Satya Nadella called tokens per watt per dollar the new currency of AI.
+          CloudAGI is the marketplace where that unit becomes priceable, settable, and earnable on-chain.
+        </p>
+        <p className="mt-4 max-w-2xl mx-auto text-sm text-[var(--color-muted-foreground)] font-mono leading-relaxed">
+          Anthropic credits sitting unused. A Gemma 3 running on your 4090 at 4am. Qwen3 on a Mac Studio.
+          Specialized agents you tuned on your own data. CloudAGI prices each one per call, settles in USDC,
+          and writes a receipt to Solana.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-center">
           <a
@@ -162,7 +167,7 @@ function HeroSection() {
               "hover:bg-[var(--color-accent-dim)] transition-colors",
             )}
           >
-            Join Waitlist <span aria-hidden="true">→</span>
+            Join waitlist <span aria-hidden="true">→</span>
           </a>
           <a
             href="/status.html"
@@ -173,7 +178,7 @@ function HeroSection() {
             )}
           >
             <span className="text-[var(--color-accent)]" aria-hidden="true">◈</span>
-            Live Build Status
+            Live build status
           </a>
         </div>
         <p className="mt-4 text-xs font-mono text-[var(--color-muted-foreground)]">
@@ -217,7 +222,7 @@ function FlowVisual() {
           <div className="font-mono text-2xl font-semibold text-[var(--color-foreground)]">
             <span className="text-[var(--color-accent)]">◈</span> CloudAGI
           </div>
-          <div className="mt-2 font-mono text-[11px] text-[var(--color-muted)]">x402 settlement · $/million tokens</div>
+          <div className="mt-2 font-mono text-[11px] text-[var(--color-muted)]">x402 settlement · USDC per million tokens</div>
           <div className="mt-4 inline-flex items-center gap-2 text-[10px] font-mono text-[var(--color-accent)] border border-[var(--color-accent)]/30 bg-[var(--color-accent-glow)] px-2 py-1 rounded">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
             live on solana devnet
@@ -249,12 +254,14 @@ function ProblemSection() {
     <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)] py-16 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">
-          The Agent Subscription Problem
+          The unit nobody could sell
         </h2>
         <p className="mt-4 max-w-2xl mx-auto font-mono text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
-          Every AI engineer has Claude Max, Cursor Pro, Codex, and Amp running simultaneously.
-          Most of that capacity sits idle. Meanwhile, someone else needs a burst of compute and has
-          to pay full subscription price to get it. That&apos;s the market inefficiency CloudAGI fixes.
+          Big providers eat the margin between cost and price.
+          Self-hosters have no clean way to charge.
+          Subscriptions sit half used.
+          Specialized agents stay locked inside the wallets of the people who built them.
+          There is no public market for the actual unit of work, only services that rent access to one.
         </p>
         <dl className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
           {PROBLEM_STATS.map((s) => (
@@ -274,10 +281,10 @@ function HowItWorks() {
     <section id="how" className="max-w-6xl mx-auto px-6 py-20" aria-labelledby="how-heading">
       <header className="text-center mb-12">
         <h2 id="how-heading" className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">
-          How It Works
+          How it works
         </h2>
         <p className="mt-3 font-mono text-sm text-[var(--color-muted)]">
-          A four-step protocol that turns wasted subscriptions into revenue
+          Four steps from idle capacity to settled USDC
         </p>
       </header>
       <ol className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,21 +302,61 @@ function HowItWorks() {
   );
 }
 
+function ThesisSection() {
+  return (
+    <section
+      id="thesis"
+      className="max-w-4xl mx-auto px-6 py-20"
+      aria-labelledby="thesis-heading"
+    >
+      <header className="text-center mb-10">
+        <div className="inline-block font-mono text-[10px] uppercase tracking-widest text-[var(--color-accent)] border border-[var(--color-accent)]/30 bg-[var(--color-accent-glow)] px-2 py-1 rounded">
+          The thesis
+        </div>
+        <h2
+          id="thesis-heading"
+          className="mt-4 font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight"
+        >
+          Agents reselling agents
+        </h2>
+      </header>
+      <div className="space-y-5 font-mono text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+        <p>
+          The first wave of APIs sold compute. The second sold data. The third sells intelligence.
+        </p>
+        <p>
+          CloudAGI is built for the case where the seller is also using an agent to fulfill the order.
+          Your Claude Sonnet routes a task to a Qwen3 running on someone&apos;s home server.
+          That Qwen calls a fine-tuned Gemma you trained on legal contracts, medical claims, or your own playbook.
+          Every hop pays the layer below it.
+        </p>
+        <p className="text-[var(--color-foreground)]">
+          Specialized human knowledge meets model intelligence at every step. The wallet does the accounting.
+        </p>
+        <p>
+          That is the next layer of APIs. Not a service company in the middle. A protocol where any wallet can
+          register, get paid per call, and earn reputation that follows it across the network.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function ComparisonTable() {
   return (
     <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)] py-16 px-6">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-12">
-          <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">Why CloudAGI?</h2>
-          <p className="mt-3 font-mono text-sm text-[var(--color-muted)]">Not a reseller. Not a SaaS wrapper. A protocol.</p>
+          <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">Where CloudAGI fits</h2>
+          <p className="mt-3 font-mono text-sm text-[var(--color-muted)]">A protocol, not a service</p>
         </header>
         <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]">
           <table className="w-full font-mono text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]">
-                <th className="text-left px-5 py-3 text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-medium">Feature</th>
+                <th className="text-left px-5 py-3 text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-medium">Capability</th>
                 <th className="text-center px-5 py-3 text-[10px] uppercase tracking-widest text-[var(--color-accent)] font-medium">CloudAGI</th>
-                <th className="text-center px-5 py-3 text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-medium">Others</th>
+                <th className="text-center px-5 py-3 text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-medium">Hosted providers</th>
               </tr>
             </thead>
             <tbody>
@@ -317,13 +364,13 @@ function ComparisonTable() {
                 <tr key={String(feature)} className="border-b border-[var(--color-border-subtle)] last:border-0">
                   <td className="px-5 py-3.5 text-[var(--color-foreground)]">{feature}</td>
                   <td className="text-center px-5 py-3.5">
-                    {mine === true ? <span className="text-[var(--color-accent)]">✓</span> : <span className="text-[var(--color-muted-foreground)]">—</span>}
+                    {mine === true ? <span className="text-[var(--color-accent)]">✓</span> : <span className="text-[var(--color-muted-foreground)]">·</span>}
                   </td>
                   <td className="text-center px-5 py-3.5">
                     {theirs === true ? (
                       <span className="text-[var(--color-accent)]">✓</span>
                     ) : theirs === false ? (
-                      <span className="text-[var(--color-muted-foreground)]">—</span>
+                      <span className="text-[var(--color-muted-foreground)]">·</span>
                     ) : (
                       <span className="text-[var(--color-warning)] text-xs">{theirs}</span>
                     )}
@@ -343,7 +390,7 @@ function ProjectsGrid() {
     <section id="projects" className="max-w-6xl mx-auto px-6 py-20">
       <header className="text-center mb-12">
         <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">
-          What We&apos;re Building
+          What we ship
         </h2>
         <p className="mt-3 font-mono text-sm text-[var(--color-muted)]">
           Open source infrastructure for the agent credit economy
@@ -383,11 +430,11 @@ function WaitlistSection() {
     <section id="waitlist" className="border-y border-[var(--color-border)] bg-[var(--color-surface)] py-20 px-6">
       <div className="max-w-2xl mx-auto text-center">
         <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">
-          Get Early Access
+          Get early access
         </h2>
         <p className="mt-3 font-mono text-sm text-[var(--color-muted)]">
-          We&apos;re opening the marketplace to a limited set of early sellers and buyers.
-          Join the waitlist and we&apos;ll reach out when your spot is ready.
+          We are opening the marketplace to a limited set of early sellers and buyers.
+          Join the waitlist and we will reach out when your spot is ready.
         </p>
         <div className="mt-8">
           <WaitlistForm />
@@ -404,11 +451,11 @@ function FinalCta() {
   return (
     <section className="max-w-4xl mx-auto px-6 py-20 text-center">
       <h2 className="font-mono text-2xl sm:text-3xl font-semibold text-[var(--color-foreground)] tracking-tight">
-        Your Idle Credits Are Already Worth Something
+        Your idle capacity is already worth something
       </h2>
       <p className="mt-4 font-mono text-sm text-[var(--color-muted)] max-w-xl mx-auto leading-relaxed">
-        Stop paying for capacity you&apos;re not using. List it. Earn from it.
-        Or buy what you need without committing to another subscription.
+        List a credit pool. Plug in a local model. Sell what your specialized agents already know.
+        Get paid in USDC the moment work clears.
       </p>
       <div className="mt-8 flex flex-col sm:flex-row gap-3 items-center justify-center">
         <a
@@ -419,13 +466,13 @@ function FinalCta() {
             "hover:bg-[var(--color-accent-dim)] transition-colors",
           )}
         >
-          Join the Waitlist <span aria-hidden="true">→</span>
+          Join the waitlist <span aria-hidden="true">→</span>
         </a>
         <a
           href="/status.html"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md font-mono text-sm font-medium border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-accent)]/60 hover:text-[var(--color-accent)] transition-colors"
         >
-          Read the Build Log
+          Read the build log
         </a>
       </div>
       <div className="mt-8 text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted-foreground)]">
@@ -445,8 +492,8 @@ function Footer() {
             <span className="font-semibold text-[var(--color-foreground)]">cloudagi</span>
           </div>
           <p className="text-xs text-[var(--color-muted)] leading-relaxed">
-            The marketplace and protocol for buying and selling unused AI agent credits.
-            Cloud Agent General Infrastructure.
+            The marketplace and protocol for the actual unit of AI work. Tokens per watt per dollar.
+            Settled in USDC. Receipted on Solana.
           </p>
           <p className="mt-3 text-[10px] uppercase tracking-widest text-[var(--color-muted-foreground)]">
             Built in San Francisco
@@ -455,24 +502,24 @@ function Footer() {
         <div>
           <div className="text-[10px] uppercase tracking-widest text-[var(--color-muted-foreground)] mb-3">Company</div>
           <ul className="space-y-2 text-xs text-[var(--color-muted)]">
-            <li><a href="#projects" className="hover:text-[var(--color-foreground)] transition-colors">About</a></li>
-            <li><a href="#projects" className="hover:text-[var(--color-foreground)] transition-colors">Open Source</a></li>
+            <li><a href="#thesis" className="hover:text-[var(--color-foreground)] transition-colors">Thesis</a></li>
+            <li><a href="#projects" className="hover:text-[var(--color-foreground)] transition-colors">Open source</a></li>
             <li><a href="https://github.com/aryateja2106/cloudagi" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-foreground)] transition-colors">GitHub</a></li>
           </ul>
         </div>
         <div>
           <div className="text-[10px] uppercase tracking-widest text-[var(--color-muted-foreground)] mb-3">Product</div>
           <ul className="space-y-2 text-xs text-[var(--color-muted)]">
-            <li><a href="#how" className="hover:text-[var(--color-foreground)] transition-colors">How It Works</a></li>
+            <li><a href="#how" className="hover:text-[var(--color-foreground)] transition-colors">How it works</a></li>
             <li><a href="#projects" className="hover:text-[var(--color-foreground)] transition-colors">Local AGI</a></li>
-            <li><a href="/status.html" className="hover:text-[var(--color-foreground)] transition-colors">Build Status</a></li>
+            <li><a href="/status.html" className="hover:text-[var(--color-foreground)] transition-colors">Build status</a></li>
           </ul>
         </div>
         <div>
           <div className="text-[10px] uppercase tracking-widest text-[var(--color-muted-foreground)] mb-3">Legal</div>
           <ul className="space-y-2 text-xs text-[var(--color-muted)]">
-            <li><span className="text-[var(--color-muted-foreground)]">Privacy Policy · soon</span></li>
-            <li><span className="text-[var(--color-muted-foreground)]">Terms of Service · soon</span></li>
+            <li><span className="text-[var(--color-muted-foreground)]">Privacy policy · soon</span></li>
+            <li><span className="text-[var(--color-muted-foreground)]">Terms of service · soon</span></li>
           </ul>
         </div>
       </div>
@@ -486,7 +533,7 @@ function Footer() {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// Page ───────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
@@ -497,6 +544,7 @@ export default function HomePage() {
         <FlowVisual />
         <ProblemSection />
         <HowItWorks />
+        <ThesisSection />
         <ComparisonTable />
         <ProjectsGrid />
         <WaitlistSection />
