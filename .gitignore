@@ -67,3 +67,4 @@ Thumbs.db
 apps/web/.waitlist/
 apps/web/next-env.d.ts
 .secrets/
+.vercel
