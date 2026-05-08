@@ -10,12 +10,7 @@ import { createServer } from "node:http";
 import type { Server } from "node:http";
 import { hashOutput, hashPrompt } from "./hashes.js";
 import { countTokens } from "./tokens.js";
-import type {
-  AgentHandler,
-  InvocationContext,
-  InvocationOutput,
-  MeterRecord,
-} from "./types.js";
+import type { AgentHandler, InvocationContext, InvocationOutput, MeterRecord } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Module-level metering registry
@@ -111,10 +106,7 @@ export interface AgentServer {
  * @param opts    - Optional port and onMetered callback.
  * @returns An {@link AgentServer} with `close()` and `port`.
  */
-export function serveAgent(
-  handler: AgentHandler,
-  opts?: ServeAgentOptions,
-): AgentServer {
+export function serveAgent(handler: AgentHandler, opts?: ServeAgentOptions): AgentServer {
   const onMetered = opts?.onMetered;
 
   // Register onMetered in the module-level registry so invokeHandlerDirect

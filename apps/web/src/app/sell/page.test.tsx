@@ -1,3 +1,4 @@
+import { fireEvent, render, screen, waitFor } from "@/test-utils";
 /**
  * /sell page tests — Wave 1 RED phase.
  *
@@ -12,8 +13,7 @@
  *   Story 6  — set per-call policies
  *   Story 7  — receive automatic settlement
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@/test-utils";
+import { describe, expect, it } from "vitest";
 import SellPage from "./page";
 
 // ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ describe("SellPage — layout and landmarks", () => {
     render(<SellPage />);
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /list your agent|register agent|sell|provider/i })
+      screen.getByRole("heading", { name: /list your agent|register agent|sell|provider/i }),
     ).toBeInTheDocument();
   });
 
@@ -46,9 +46,7 @@ describe("SellPage — layout and landmarks", () => {
 describe("SellPage — wallet connection (SPEC §3.1 story 1)", () => {
   it("renders a 'Connect wallet' button when no wallet is connected", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("button", { name: /connect wallet/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /connect wallet/i })).toBeInTheDocument();
   });
 
   it("shows wallet address and 'Disconnect' option after wallet connection", async () => {
@@ -58,7 +56,7 @@ describe("SellPage — wallet connection (SPEC §3.1 story 1)", () => {
       // Wave 2: wallet adapter mock should resolve with a public key
       expect(
         screen.getByRole("button", { name: /disconnect/i }) ||
-        screen.getByText(/[A-HJ-NP-Za-km-z1-9]{32,44}/)
+          screen.getByText(/[A-HJ-NP-Za-km-z1-9]{32,44}/),
       ).toBeInTheDocument();
     });
   });
@@ -71,9 +69,7 @@ describe("SellPage — wallet connection (SPEC §3.1 story 1)", () => {
 describe("SellPage — agent registration form (SPEC §3.1 story 3)", () => {
   it("renders a text input for the agent display name", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("textbox", { name: /agent name|display name/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /agent name|display name/i })).toBeInTheDocument();
   });
 
   it("renders a skill tags input or multi-select", () => {
@@ -86,23 +82,17 @@ describe("SellPage — agent registration form (SPEC §3.1 story 3)", () => {
 
   it("renders a model descriptor input (model family / name)", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("textbox", { name: /model/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /model/i })).toBeInTheDocument();
   });
 
   it("renders a price per million tokens numeric input", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("spinbutton", { name: /price.*million|M-tok/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("spinbutton", { name: /price.*million|M-tok/i })).toBeInTheDocument();
   });
 
   it("renders an endpoint URL input", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("textbox", { name: /endpoint url|endpoint/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /endpoint url|endpoint/i })).toBeInTheDocument();
   });
 
   it("shows a validation error when endpoint URL is not a valid HTTPS URL", async () => {
@@ -117,9 +107,7 @@ describe("SellPage — agent registration form (SPEC §3.1 story 3)", () => {
 
   it("disables the 'Register agent' submit button when required fields are empty", () => {
     render(<SellPage />);
-    expect(
-      screen.getByRole("button", { name: /register agent|submit/i })
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: /register agent|submit/i })).toBeDisabled();
   });
 });
 
@@ -138,9 +126,7 @@ describe("SellPage — stake requirement (SPEC §3.1 story 2)", () => {
   it("renders a 'Post stake' or 'Approve stake transaction' button", async () => {
     render(<SellPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /post stake|approve stake/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /post stake|approve stake/i })).toBeInTheDocument();
     });
   });
 });
@@ -153,14 +139,14 @@ describe("SellPage — per-call policies (SPEC §3.1 story 6)", () => {
   it("renders a max prompt tokens numeric input", () => {
     render(<SellPage />);
     expect(
-      screen.getByRole("spinbutton", { name: /max.*prompt tokens|max prompt/i })
+      screen.getByRole("spinbutton", { name: /max.*prompt tokens|max prompt/i }),
     ).toBeInTheDocument();
   });
 
   it("renders a max output tokens numeric input", () => {
     render(<SellPage />);
     expect(
-      screen.getByRole("spinbutton", { name: /max.*output tokens|max output/i })
+      screen.getByRole("spinbutton", { name: /max.*output tokens|max output/i }),
     ).toBeInTheDocument();
   });
 });

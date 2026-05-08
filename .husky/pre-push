@@ -1,0 +1,2 @@
+echo "running typecheck before push..."
+bun run typecheck

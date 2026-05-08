@@ -1,3 +1,5 @@
+import { type TerminalLine, TerminalPreview } from "@/components/ui/TerminalPreview";
+import { render, screen } from "@/test-utils";
 /**
  * TerminalPreview component tests — Wave 1 RED phase.
  *
@@ -12,9 +14,7 @@
  *   <TerminalPreview lines={TerminalLine[]} title="cloudagi — terminal" />
  *   TerminalLine: { type: "command" | "output" | "info" | "prompt"; text: string }
  */
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test-utils";
-import { TerminalPreview, type TerminalLine } from "@/components/ui/TerminalPreview";
+import { describe, expect, it } from "vitest";
 
 const SAMPLE_LINES: TerminalLine[] = [
   { type: "command", text: "cloudagi agents list --tag summarize" },
@@ -55,11 +55,9 @@ describe("TerminalPreview — rendering", () => {
       <TerminalPreview
         lines={SAMPLE_LINES}
         aria-label="Terminal interface preview showing agent invocation"
-      />
+      />,
     );
-    expect(
-      screen.getByRole("img", { name: /terminal interface preview/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /terminal interface preview/i })).toBeInTheDocument();
   });
 });
 
@@ -73,11 +71,7 @@ describe("TerminalPreview — empty state", () => {
 
 describe("TerminalPreview — prompt line (SPEC §4.2 intent approval)", () => {
   it("renders a prompt-type line that visually prompts user approval", () => {
-    render(
-      <TerminalPreview
-        lines={[{ type: "prompt", text: "Approve? [y/N]" }]}
-      />
-    );
+    render(<TerminalPreview lines={[{ type: "prompt", text: "Approve? [y/N]" }]} />);
     expect(screen.getByText(/approve\? \[y\/N\]/i)).toBeInTheDocument();
   });
 });

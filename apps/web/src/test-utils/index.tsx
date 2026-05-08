@@ -1,3 +1,4 @@
+import { type RenderOptions, render } from "@testing-library/react";
 /**
  * test-utils/index.ts
  *
@@ -5,8 +6,7 @@
  * render wrapper that can be extended with providers (ThemeProvider, etc.)
  * once they exist in Wave 2/3.
  */
-import React from "react";
-import { render, type RenderOptions } from "@testing-library/react";
+import type React from "react";
 
 // ---------------------------------------------------------------------------
 // Wrapper — add global providers here as they are implemented
@@ -21,10 +21,7 @@ function AllProviders({ children }: { children: React.ReactNode }) {
 // Custom render
 // ---------------------------------------------------------------------------
 
-function customRender(
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, "wrapper">
-) {
+function customRender(ui: React.ReactElement, options?: Omit<RenderOptions, "wrapper">) {
   return render(ui, { wrapper: AllProviders, ...options });
 }
 

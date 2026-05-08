@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/Badge";
+import { render, screen } from "@/test-utils";
 /**
  * Badge component tests — Wave 1 RED phase.
  *
@@ -9,9 +11,7 @@
  *   Used for: agent status (active/paused/slashed), skill tags,
  *             receipt status (minted/disputed/refunded), reputation tier.
  */
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test-utils";
-import { Badge } from "@/components/ui/Badge";
+import { describe, expect, it } from "vitest";
 
 describe("Badge — rendering", () => {
   it("renders the badge text content", () => {
@@ -41,10 +41,7 @@ describe("Badge — rendering", () => {
 
   it("renders with variant='outline' for skill tags", () => {
     render(<Badge variant="outline">sentiment.classify.v1</Badge>);
-    expect(screen.getByText(/sentiment\.classify\.v1/)).toHaveAttribute(
-      "data-variant",
-      "outline"
-    );
+    expect(screen.getByText(/sentiment\.classify\.v1/)).toHaveAttribute("data-variant", "outline");
   });
 });
 
@@ -70,7 +67,7 @@ describe("Badge — accessibility", () => {
     render(
       <p>
         Status: <Badge>active</Badge>
-      </p>
+      </p>,
     );
     // The paragraph text + badge text should both be readable
     expect(screen.getByText(/status:/i)).toBeInTheDocument();

@@ -1,12 +1,19 @@
 "use client";
 
-import * as React from "react";
-import { cn } from "@/lib/cn";
-import { MOCK_AGENTS } from "@/lib/mock-agents";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
+import { MOCK_AGENTS } from "@/lib/mock-agents";
 import type { Agent } from "@cloudagi/shared";
+import * as React from "react";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -38,9 +45,7 @@ export default function MarketplacePage() {
   const filtered = MOCK_AGENTS.filter((agent) => {
     if (
       skillFilter &&
-      !agent.skills.some((s) =>
-        s.toLowerCase().includes(skillFilter.toLowerCase())
-      ) &&
+      !agent.skills.some((s) => s.toLowerCase().includes(skillFilter.toLowerCase())) &&
       !agent.displayName.toLowerCase().includes(skillFilter.toLowerCase())
     ) {
       return false;
@@ -90,16 +95,13 @@ export default function MarketplacePage() {
                 "rounded-md border border-[var(--color-border,#2a2a2a)]",
                 "bg-[var(--color-surface-raised,#1a1a1a)]",
                 "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                "focus:outline-none focus:border-[#00d184]"
+                "focus:outline-none focus:border-[#00d184]",
               )}
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label
-              htmlFor="max-price"
-              className="text-xs font-mono text-[var(--color-muted,#888)]"
-            >
+            <label htmlFor="max-price" className="text-xs font-mono text-[var(--color-muted,#888)]">
               Max price (per M-tok)
             </label>
             <input
@@ -108,15 +110,13 @@ export default function MarketplacePage() {
               aria-label="Max price per million tokens"
               min={0}
               value={maxPrice}
-              onChange={(e) =>
-                setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))
-              }
+              onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
               placeholder="No limit"
               className={cn(
                 "rounded-md border border-[var(--color-border,#2a2a2a)]",
                 "bg-[var(--color-surface-raised,#1a1a1a)]",
                 "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                "focus:outline-none focus:border-[#00d184] w-36"
+                "focus:outline-none focus:border-[#00d184] w-36",
               )}
             />
           </div>
@@ -137,7 +137,7 @@ export default function MarketplacePage() {
                 "rounded-md border border-[var(--color-border,#2a2a2a)]",
                 "bg-[var(--color-surface-raised,#1a1a1a)]",
                 "px-3 py-2 text-sm font-mono text-[var(--color-foreground,#f5f5f5)]",
-                "focus:outline-none focus:border-[#00d184]"
+                "focus:outline-none focus:border-[#00d184]",
               )}
             >
               {REPUTATION_TIERS.map((t) => (
@@ -166,8 +166,8 @@ export default function MarketplacePage() {
                         agent.status === "active"
                           ? "success"
                           : agent.status === "paused"
-                          ? "warning"
-                          : "danger"
+                            ? "warning"
+                            : "danger"
                       }
                     >
                       {agent.status}
@@ -193,7 +193,9 @@ export default function MarketplacePage() {
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => { window.history.pushState({}, "", `/session/${agent.id}`); }}
+                    onClick={() => {
+                      window.history.pushState({}, "", `/session/${agent.id}`);
+                    }}
                     aria-label={`Open terminal for ${agent.displayName}`}
                   >
                     Open terminal

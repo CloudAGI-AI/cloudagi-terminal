@@ -6,11 +6,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  createBuyerClient,
-  registerAgent,
-  serveAgent,
-} from "./index.js";
+import { createBuyerClient, registerAgent, serveAgent } from "./index.js";
 import type { AgentRegistration, InvocationResult } from "./index.js";
 
 // ---------------------------------------------------------------------------
@@ -165,8 +161,6 @@ describe("createBuyerClient", () => {
   });
 
   it("throws ZodError when marketplaceUrl is not a valid URL", () => {
-    expect(() =>
-      createBuyerClient({ marketplaceUrl: "not-a-url" }),
-    ).toThrow();
+    expect(() => createBuyerClient({ marketplaceUrl: "not-a-url" })).toThrow();
   });
 });

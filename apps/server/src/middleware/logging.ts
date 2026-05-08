@@ -15,7 +15,7 @@
  *   app.use("*", requestLogger({ stream: "pretty" }))
  */
 
-import type { Context, Next, MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler, Next } from "hono";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -119,7 +119,7 @@ export function requestLogger(opts: LoggingMiddlewareOpts = {}): MiddlewareHandl
     if (mode === "pretty") {
       const color = status >= 500 ? "\x1b[31m" : status >= 400 ? "\x1b[33m" : "\x1b[32m";
       console.log(
-        `${color}[${requestId.slice(0, 8)}] ${entry.method} ${entry.path} ${status} +${durationMs}ms\x1b[0m`
+        `${color}[${requestId.slice(0, 8)}] ${entry.method} ${entry.path} ${status} +${durationMs}ms\x1b[0m`,
       );
     } else {
       console.log(JSON.stringify(entry));

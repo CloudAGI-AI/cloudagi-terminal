@@ -47,15 +47,10 @@ export type TokenPricingInput = z.input<typeof tokenPricingSchema>;
 
 export const registerAgentOptionsSchema = z.object({
   /** Human-readable display name (1–64 chars). */
-  name: z
-    .string()
-    .min(1, "name must not be empty")
-    .max(64, "name must be 64 characters or fewer"),
+  name: z.string().min(1, "name must not be empty").max(64, "name must be 64 characters or fewer"),
 
   /** At least one skill tag must be provided. */
-  skills: z
-    .array(skillSchema)
-    .min(1, "at least one skill is required"),
+  skills: z.array(skillSchema).min(1, "at least one skill is required"),
 
   /** Pricing schedule denominated in lamports per M-tokens. */
   pricing: tokenPricingSchema,

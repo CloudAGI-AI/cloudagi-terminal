@@ -9,16 +9,16 @@
  * Several tests will partially pass because the stubs return valid shapes.
  */
 
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { registerAgent } from "./register.js";
-import { serveAgent, invokeHandlerDirect } from "./serve.js";
+import { describe, expect, it } from "vitest";
 import { createBuyerClient } from "./buyer.js";
-import { hashOutput, hashPrompt } from "./hashes.js";
+import { hashOutput } from "./hashes.js";
+import { registerAgent } from "./register.js";
+import { invokeHandlerDirect, serveAgent } from "./serve.js";
 import type {
   AgentHandler,
+  AgentRegistration,
   InvocationContext,
   InvocationResult,
-  AgentRegistration,
 } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -146,10 +146,7 @@ describe("E2E — full lifecycle (RED until HTTP layer lands)", () => {
 
     // Buyer invokes it
     const client = createBuyerClient({ maxBudgetLamports: 100_000 });
-    const result: InvocationResult = await client.invoke(
-      reg.agentId,
-      "E2E full lifecycle test",
-    );
+    const result: InvocationResult = await client.invoke(reg.agentId, "E2E full lifecycle test");
 
     // RED: real impl must route to the registered agent's endpoint.
     // Stub just generates a random receipt regardless of agentId.
@@ -187,9 +184,7 @@ describe("E2E — full lifecycle (RED until HTTP layer lands)", () => {
 
     // A very long prompt would cost more than 1 lamport at any real rate.
     const longPrompt = "word ".repeat(10_000);
-    await expect(
-      tightClient.invoke("agent_stub_0001", longPrompt),
-    ).rejects.toThrow();
+    await expect(tightClient.invoke("agent_stub_0001", longPrompt)).rejects.toThrow();
   });
 
   it("invoke on a closed server returns an error (RED)", async () => {
@@ -201,9 +196,7 @@ describe("E2E — full lifecycle (RED until HTTP layer lands)", () => {
       marketplaceUrl: `http://127.0.0.1:${server.port ?? 0}`,
     });
 
-    await expect(
-      client.invoke("agent_test", "post-close invoke"),
-    ).rejects.toThrow();
+    await expect(client.invoke("agent_test", "post-close invoke")).rejects.toThrow();
   });
 
   it("handler error is surfaced to the buyer as a structured error (RED)", async () => {
@@ -227,10 +220,12 @@ describe("E2E — full lifecycle (RED until HTTP layer lands)", () => {
     // RED: requires onMetered callback support in serveAgent.
     const meterRecords: Array<{ outputHash: string }> = [];
 
-    const server = (serveAgent as (
-      h: AgentHandler,
-      opts?: { onMetered?: (r: unknown) => void },
-    ) => ReturnType<typeof serveAgent>)(echoHandler, {
+    const server = (
+      serveAgent as (
+        h: AgentHandler,
+        opts?: { onMetered?: (r: unknown) => void },
+      ) => ReturnType<typeof serveAgent>
+    )(echoHandler, {
       onMetered: (r) => meterRecords.push(r as { outputHash: string }),
     });
 

@@ -1,3 +1,4 @@
+import { render, screen, within } from "@/test-utils";
 /**
  * Landing page tests — Wave 1 RED phase.
  *
@@ -5,8 +6,7 @@
  * Sections covered: NavBar, HeroSection, FeaturesSection, StatsStrip,
  * TerminalPreview, Footer, and accessibility landmarks.
  */
-import { describe, it, expect } from "vitest";
-import { render, screen, within } from "@/test-utils";
+import { describe, expect, it } from "vitest";
 import HomePage from "./page";
 
 // ---------------------------------------------------------------------------
@@ -21,9 +21,7 @@ describe("NavBar", () => {
 
   it("renders a primary navigation landmark", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("navigation", { name: "Primary navigation" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
   });
 
   it("renders a GitHub link in the navbar that opens in a new tab", () => {
@@ -48,9 +46,7 @@ describe("NavBar", () => {
 describe("HeroSection", () => {
   it("renders the primary hero heading", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("heading", { level: 1 })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
   });
 
   it("hero heading contains the on-chain tagline", () => {
@@ -61,23 +57,17 @@ describe("HeroSection", () => {
 
   it("renders the 'List your agent' primary CTA link", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("link", { name: /list your agent/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /list your agent/i })).toBeInTheDocument();
   });
 
   it("renders the 'Open terminal' secondary CTA link", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("link", { name: /open terminal/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open terminal/i })).toBeInTheDocument();
   });
 
   it("renders the 'active development — public sprint' status badge", () => {
     render(<HomePage />);
-    expect(
-      screen.getByText(/active development/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/active development/i)).toBeInTheDocument();
   });
 
   it("renders a hero section with aria-labelledby pointing to hero-heading id", () => {
@@ -97,7 +87,7 @@ describe("FeaturesSection", () => {
   it("renders the features section heading", () => {
     render(<HomePage />);
     expect(
-      screen.getByRole("heading", { level: 2, name: /cloudagi approach/i })
+      screen.getByRole("heading", { level: 2, name: /cloudagi approach/i }),
     ).toBeInTheDocument();
   });
 
@@ -133,9 +123,7 @@ describe("FeaturesSection", () => {
 describe("StatsStrip", () => {
   it("renders the platform statistics section landmark", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("region", { name: /platform statistics/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /platform statistics/i })).toBeInTheDocument();
   });
 
   it("renders 'Uptime' stat label with 99.9 value", () => {
@@ -168,16 +156,12 @@ describe("StatsStrip", () => {
 describe("TerminalPreview", () => {
   it("renders the terminal preview region with descriptive aria-label", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("region", { name: /terminal preview/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /terminal preview/i })).toBeInTheDocument();
   });
 
   it("renders an img role element describing the terminal interface", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("img", { name: /terminal interface preview/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /terminal interface preview/i })).toBeInTheDocument();
   });
 });
 
@@ -193,9 +177,7 @@ describe("Footer", () => {
 
   it("renders the footer navigation landmark", () => {
     render(<HomePage />);
-    expect(
-      screen.getByRole("navigation", { name: /footer navigation/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /footer navigation/i })).toBeInTheDocument();
   });
 
   it("renders a GitHub link in the footer", () => {

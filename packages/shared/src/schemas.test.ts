@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   AgentSchema,
-  SessionSchema,
+  IntentApprovalSchema,
   InvocationSchema,
   ReceiptSchema,
-  StakeEventSchema,
   ReputationSchema,
-  IntentApprovalSchema,
+  SessionSchema,
+  StakeEventSchema,
 } from "./schemas/index.js";
 
 // ---------------------------------------------------------------------------

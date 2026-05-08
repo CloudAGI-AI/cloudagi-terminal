@@ -2,6 +2,13 @@ import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { z } from "zod";
 import { Errors } from "../lib/errors.js";
+import {
+  type SolanaX402PaymentContext,
+  createSolanaX402PaymentContext,
+  isRealX402SolanaEnabled,
+  settleSolanaX402Payment,
+  verifySolanaX402Payment,
+} from "../lib/x402-solana.js";
 import { getAgent } from "../store/agents.js";
 import { consumeNonce, issueNonce } from "../store/nonces.js";
 import { appendReceipt } from "../store/receipts.js";
@@ -27,6 +34,10 @@ async function sha256Hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
 }
 
 /**
@@ -107,25 +118,83 @@ invoke.post("/:id/invoke", async (c) => {
     return c.json({ error: Errors.validationError("Body must be valid JSON") }, 422);
   }
 
+  const estimatedTokens = 1000;
+  const estimatedUsdAmount = (agent.pricing.perMTokensIn / 1_000_000) * estimatedTokens;
+  const estimatedMicroUsdc = String(Math.max(1, Math.round(estimatedUsdAmount * 1_000_000)));
+
+  const realX402Enabled = isRealX402SolanaEnabled();
   const paymentAuthHeader = c.req.header("X-Payment-Auth");
+  const paymentSignatureHeader = c.req.header("PAYMENT-SIGNATURE");
+  let payer = "unknown";
+  let realPaymentContext: SolanaX402PaymentContext | undefined;
+
+  if (realX402Enabled) {
+    try {
+      realPaymentContext = await createSolanaX402PaymentContext({
+        amount: estimatedMicroUsdc,
+        treasuryAddress: agent.provider,
+        resourceUrl: c.req.url,
+        description: `CloudAGI invocation for agent ${id}`,
+      });
+    } catch (error) {
+      return c.json(
+        {
+          error: {
+            code: "X402_FACILITATOR_UNAVAILABLE",
+            message: errorMessage(error),
+          },
+        },
+        502,
+      );
+    }
+
+    if (paymentSignatureHeader === undefined) {
+      return new Response(JSON.stringify(realPaymentContext.response.body), {
+        status: realPaymentContext.response.status,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Payment-Scheme": "x402/solana-v2",
+          "X-Payment-Receiver": agent.provider,
+          "X-Payment-Amount": estimatedMicroUsdc,
+          "X-Agent-Id": id,
+        },
+      });
+    }
+
+    const verified = await verifySolanaX402Payment(
+      paymentSignatureHeader,
+      realPaymentContext.requirements,
+      agent.provider,
+    );
+    if (!verified.isValid) {
+      return c.json(
+        {
+          error: {
+            code: "PAYMENT_REQUIRED",
+            message: "Invalid x402-solana payment",
+            reason: verified.invalidReason ?? "unknown",
+          },
+        },
+        402,
+      );
+    }
+
+    payer = "x402-solana:v2";
+  }
 
   // ── No payment auth → issue 402 challenge ───────────────────────────────────
-  if (paymentAuthHeader === undefined) {
+  if (!realX402Enabled && paymentAuthHeader === undefined) {
     const nonce = randomUUID();
     issueNonce(nonce); // register so replay protection tracks it
 
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-
-    const estimatedTokens = 1000;
-    const usdAmount = (agent.pricing.perMTokensIn / 1_000_000) * estimatedTokens;
-    const microUsdc = Math.max(1, Math.round(usdAmount * 1_000_000));
 
     const body = JSON.stringify({
       error: "Payment required",
       paymentHint: {
         chain: "solana",
         currency: "USDC",
-        amount: String(microUsdc),
+        amount: estimatedMicroUsdc,
         payTo: agent.provider,
         nonce,
         expiresAt,
@@ -138,7 +207,7 @@ invoke.post("/:id/invoke", async (c) => {
         "Content-Type": "application/json",
         "X-Payment-Scheme": "x402/solana",
         "X-Payment-Receiver": agent.provider,
-        "X-Payment-Amount": String(microUsdc),
+        "X-Payment-Amount": estimatedMicroUsdc,
         "X-Payment-Nonce": nonce,
         "X-Expires-At": expiresAt,
         "X-Agent-Id": id,
@@ -149,37 +218,49 @@ invoke.post("/:id/invoke", async (c) => {
   // ── Payment auth present ────────────────────────────────────────────────────
 
   // Must start with "x402 "
-  if (!paymentAuthHeader.startsWith("x402 ")) {
+  if (
+    !realX402Enabled &&
+    (paymentAuthHeader === undefined || !paymentAuthHeader.startsWith("x402 "))
+  ) {
     return c.json(
       { error: { code: "PAYMENT_REQUIRED", message: "Invalid payment auth format" } },
       402,
     );
   }
 
-  const authPayload = paymentAuthHeader.slice(5).trim();
-  const parsed = parseAuthPayload(authPayload);
+  if (!realX402Enabled) {
+    if (paymentAuthHeader === undefined) {
+      return c.json(
+        { error: { code: "PAYMENT_REQUIRED", message: "Missing payment auth header" } },
+        402,
+      );
+    }
+    const authPayload = paymentAuthHeader.slice(5).trim();
+    const parsed = parseAuthPayload(authPayload);
 
-  if (parsed === null) {
-    // Structurally invalid — reject as payment required
-    return c.json(
-      { error: { code: "PAYMENT_REQUIRED", message: "Malformed payment auth payload" } },
-      402,
-    );
-  }
+    if (parsed === null) {
+      // Structurally invalid — reject as payment required
+      return c.json(
+        { error: { code: "PAYMENT_REQUIRED", message: "Malformed payment auth payload" } },
+        402,
+      );
+    }
 
-  const { nonce, payer } = parsed;
+    const { nonce, payer: mockPayer } = parsed;
+    payer = mockPayer;
 
-  // Replay protection: only enforced for server-issued nonces
-  if (!consumeNonce(nonce)) {
-    return c.json(
-      {
-        error: {
-          code: "PAYMENT_REQUIRED",
-          message: "Nonce already consumed — replay detected",
+    // Replay protection: only enforced for server-issued nonces
+    if (!consumeNonce(nonce)) {
+      return c.json(
+        {
+          error: {
+            code: "PAYMENT_REQUIRED",
+            message: "Nonce already consumed — replay detected",
+          },
         },
-      },
-      402,
-    );
+        402,
+      );
+    }
   }
 
   // Validate invoke body (prompt required)
@@ -190,10 +271,15 @@ invoke.post("/:id/invoke", async (c) => {
 
   const { prompt } = bodyParsed.data;
 
+  const isHydra = id === "11111111-1111-4111-8111-111111111111";
+  const sentiment = classifyCryptoSentiment(prompt);
+
   // Build receipt
   const receiptId = `rcpt_${randomUUID().replace(/-/g, "").slice(0, 24)}`;
   const promptHash = await sha256Hex(prompt);
-  const mockOutput = `Processed: ${prompt.slice(0, 80)}`;
+  const mockOutput = isHydra
+    ? `${sentiment.label}|${sentiment.confidence}|${sentiment.rationale}`
+    : `Processed: ${prompt.slice(0, 80)}`;
   const outputHash = await sha256Hex(mockOutput);
 
   const tokensIn = Math.max(1, Math.ceil(prompt.length / 4));
@@ -203,6 +289,28 @@ invoke.post("/:id/invoke", async (c) => {
     (agent.pricing.perMTokensIn / 1_000_000) * tokensIn +
     (agent.pricing.perMTokensOut / 1_000_000) * tokensOut;
   const settlementAmount = String(Math.max(1, Math.round(usdAmount * 1_000_000)));
+  let settlementSig = `sig_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+
+  if (realX402Enabled && paymentSignatureHeader !== undefined && realPaymentContext !== undefined) {
+    const settlement = await settleSolanaX402Payment(
+      paymentSignatureHeader,
+      realPaymentContext.requirements,
+      agent.provider,
+    );
+    if (!settlement.success) {
+      return c.json(
+        {
+          error: {
+            code: "PAYMENT_SETTLEMENT_FAILED",
+            message: "x402-solana payment could not be settled",
+            reason: settlement.errorReason ?? "unknown",
+          },
+        },
+        402,
+      );
+    }
+    settlementSig = settlement.transaction;
+  }
 
   const receipt = {
     id: receiptId,
@@ -215,7 +323,7 @@ invoke.post("/:id/invoke", async (c) => {
     tokensOut,
     flagsBitmap: 0,
     settlementAmount,
-    settlementSig: `sig_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
+    settlementSig,
     mintedAt: new Date().toISOString(),
     verifyUrl: `https://verify.cloudagi.io/receipts/${receiptId}`,
   };
@@ -250,5 +358,61 @@ invoke.post("/:id/invoke", async (c) => {
     },
   });
 });
+
+function classifyCryptoSentiment(prompt: string): {
+  label: "bullish" | "bearish" | "neutral";
+  confidence: number;
+  rationale: string;
+} {
+  const text = prompt.toLowerCase();
+  const bullish = [
+    "breakout",
+    "pump",
+    "rally",
+    "up",
+    "green",
+    "buy",
+    "accumulate",
+    "ath",
+    "etf",
+    "inflow",
+  ];
+  const bearish = [
+    "dump",
+    "crash",
+    "down",
+    "red",
+    "sell",
+    "liquidation",
+    "hack",
+    "outflow",
+    "bear",
+    "fear",
+  ];
+  const bullScore = bullish.filter((word) => text.includes(word)).length;
+  const bearScore = bearish.filter((word) => text.includes(word)).length;
+
+  if (bullScore === bearScore) {
+    return {
+      label: "neutral",
+      confidence: 0.62,
+      rationale: "mixed or low-conviction market signal",
+    };
+  }
+
+  if (bullScore > bearScore) {
+    return {
+      label: "bullish",
+      confidence: Math.min(0.94, 0.68 + bullScore * 0.06),
+      rationale: `positive momentum keywords outweighed risk terms (${bullScore}:${bearScore})`,
+    };
+  }
+
+  return {
+    label: "bearish",
+    confidence: Math.min(0.94, 0.68 + bearScore * 0.06),
+    rationale: `risk/offloading keywords outweighed upside terms (${bearScore}:${bullScore})`,
+  };
+}
 
 export { invoke };

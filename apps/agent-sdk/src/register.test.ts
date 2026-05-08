@@ -61,10 +61,7 @@ describe("registerAgent — return shape", () => {
   });
 
   it("each call returns a unique agentId (no ID collisions)", async () => {
-    const [a, b] = await Promise.all([
-      registerAgent(VALID_OPTS),
-      registerAgent(VALID_OPTS),
-    ]);
+    const [a, b] = await Promise.all([registerAgent(VALID_OPTS), registerAgent(VALID_OPTS)]);
     // RED: real impl derives PDA deterministically from provider+name; stubs
     // use Math.random() so this passes coincidentally — pin it anyway.
     expect(a.agentId).not.toBe(b.agentId);
@@ -77,39 +74,33 @@ describe("registerAgent — return shape", () => {
 
 describe("registerAgent — rejects invalid input", () => {
   it("throws ZodError when name is empty string", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, name: "" }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, name: "" })).rejects.toBeInstanceOf(ZodError);
   });
 
   it("throws ZodError when name exceeds 64 characters", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, name: "a".repeat(65) }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, name: "a".repeat(65) })).rejects.toBeInstanceOf(
+      ZodError,
+    );
   });
 
   it("throws ZodError when skills array is empty", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, skills: [] }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, skills: [] })).rejects.toBeInstanceOf(ZodError);
   });
 
   it("throws ZodError when a skill is not a kebab-case slug", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, skills: ["Bad Skill!"] }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, skills: ["Bad Skill!"] })).rejects.toBeInstanceOf(
+      ZodError,
+    );
   });
 
   it("throws ZodError when endpoint is not a valid URL", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, endpoint: "not-a-url" }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, endpoint: "not-a-url" })).rejects.toBeInstanceOf(
+      ZodError,
+    );
   });
 
   it("throws ZodError when endpoint is empty string", async () => {
-    await expect(
-      registerAgent({ ...VALID_OPTS, endpoint: "" }),
-    ).rejects.toBeInstanceOf(ZodError);
+    await expect(registerAgent({ ...VALID_OPTS, endpoint: "" })).rejects.toBeInstanceOf(ZodError);
   });
 
   it("throws ZodError when perMTokensIn is negative", async () => {

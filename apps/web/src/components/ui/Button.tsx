@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
+import { Slot } from "@radix-ui/react-slot";
+import { type VariantProps, cva } from "class-variance-authority";
+import * as React from "react";
 
 const buttonVariants = cva(
   [
@@ -17,10 +17,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: [
-          "bg-[#00d184] text-black",
-          "hover:bg-[#00b872]",
-        ],
+        primary: ["bg-[#00d184] text-black", "hover:bg-[#00b872]"],
         secondary: [
           "border border-[var(--color-border,#2a2a2a)] text-[var(--color-foreground,#f5f5f5)]",
           "hover:border-[#00d184]/50 hover:text-[#00d184]",
@@ -29,10 +26,7 @@ const buttonVariants = cva(
           "text-[var(--color-muted,#888)]",
           "hover:bg-[var(--color-surface-raised,#1a1a1a)] hover:text-[var(--color-foreground,#f5f5f5)]",
         ],
-        destructive: [
-          "bg-red-600 text-white",
-          "hover:bg-red-700",
-        ],
+        destructive: ["bg-red-600 text-white", "hover:bg-red-700"],
       },
       size: {
         sm: "px-3 py-1.5 text-xs",
@@ -44,7 +38,7 @@ const buttonVariants = cva(
       variant: "primary",
       size: "md",
     },
-  }
+  },
 );
 
 export interface ButtonProps
@@ -67,7 +61,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onClick,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? Slot : "button";
 
@@ -113,7 +107,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

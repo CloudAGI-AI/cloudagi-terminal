@@ -5,11 +5,11 @@
  */
 
 import type {
+  Agent,
   AgentHandler,
+  AgentId,
   InvocationContext,
   InvocationOutput,
-  Agent,
-  AgentId,
   ReceiptHandle,
   TokenPricing,
 } from "../types.js";
@@ -38,10 +38,10 @@ export const PREMIUM_PRICING: TokenPricing = {
 // ---------------------------------------------------------------------------
 
 /** A deterministic fake 64-byte wallet keypair for testing. */
-export const FAKE_WALLET: Uint8Array = new Uint8Array(64).fill(0xAB);
+export const FAKE_WALLET: Uint8Array = new Uint8Array(64).fill(0xab);
 
 /** A second distinct keypair for multi-party tests. */
-export const FAKE_WALLET_B: Uint8Array = new Uint8Array(64).fill(0xCD);
+export const FAKE_WALLET_B: Uint8Array = new Uint8Array(64).fill(0xcd);
 
 // ---------------------------------------------------------------------------
 // Agent fixtures
@@ -65,18 +65,13 @@ export const STUB_AGENT_REVIEWER: Agent = {
   registeredAt: "2025-01-02T00:00:00.000Z",
 };
 
-export const ALL_STUB_AGENTS: ReadonlyArray<Agent> = [
-  STUB_AGENT_SUMMARISER,
-  STUB_AGENT_REVIEWER,
-];
+export const ALL_STUB_AGENTS: ReadonlyArray<Agent> = [STUB_AGENT_SUMMARISER, STUB_AGENT_REVIEWER];
 
 // ---------------------------------------------------------------------------
 // InvocationContext builder
 // ---------------------------------------------------------------------------
 
-export function makeInvocationContext(
-  overrides?: Partial<InvocationContext>,
-): InvocationContext {
+export function makeInvocationContext(overrides?: Partial<InvocationContext>): InvocationContext {
   return {
     requestHash: "a".repeat(64),
     prompt: "Test prompt for the agent.",

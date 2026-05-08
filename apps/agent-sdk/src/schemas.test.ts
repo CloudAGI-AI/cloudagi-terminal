@@ -7,12 +7,12 @@
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import {
-  tokenPricingSchema,
-  registerAgentOptionsSchema,
   buyerClientOptionsSchema,
-  invocationOutputSchema,
-  skillSchema,
   endpointSchema,
+  invocationOutputSchema,
+  registerAgentOptionsSchema,
+  skillSchema,
+  tokenPricingSchema,
 } from "./schemas.js";
 
 // ---------------------------------------------------------------------------
@@ -104,24 +104,24 @@ describe("tokenPricingSchema", () => {
   });
 
   it("rejects negative perMTokensIn", () => {
-    expect(() =>
-      tokenPricingSchema.parse({ perMTokensIn: -1, perMTokensOut: 2000 }),
-    ).toThrow(ZodError);
+    expect(() => tokenPricingSchema.parse({ perMTokensIn: -1, perMTokensOut: 2000 })).toThrow(
+      ZodError,
+    );
   });
 
   it("rejects negative perMTokensOut", () => {
-    expect(() =>
-      tokenPricingSchema.parse({ perMTokensIn: 1000, perMTokensOut: -1 }),
-    ).toThrow(ZodError);
+    expect(() => tokenPricingSchema.parse({ perMTokensIn: 1000, perMTokensOut: -1 })).toThrow(
+      ZodError,
+    );
   });
 
   it("rejects float values (must be integer lamports)", () => {
-    expect(() =>
-      tokenPricingSchema.parse({ perMTokensIn: 1.5, perMTokensOut: 2000 }),
-    ).toThrow(ZodError);
-    expect(() =>
-      tokenPricingSchema.parse({ perMTokensIn: 1000, perMTokensOut: 0.1 }),
-    ).toThrow(ZodError);
+    expect(() => tokenPricingSchema.parse({ perMTokensIn: 1.5, perMTokensOut: 2000 })).toThrow(
+      ZodError,
+    );
+    expect(() => tokenPricingSchema.parse({ perMTokensIn: 1000, perMTokensOut: 0.1 })).toThrow(
+      ZodError,
+    );
   });
 
   it("rejects missing fields", () => {
@@ -153,7 +153,12 @@ describe("registerAgentOptionsSchema", () => {
     const parsed = registerAgentOptionsSchema.parse(VALID);
     // Serialize the non-Uint8Array fields
     const serialized = JSON.parse(
-      JSON.stringify({ name: parsed.name, skills: parsed.skills, pricing: parsed.pricing, endpoint: parsed.endpoint }),
+      JSON.stringify({
+        name: parsed.name,
+        skills: parsed.skills,
+        pricing: parsed.pricing,
+        endpoint: parsed.endpoint,
+      }),
     );
     const reparsed = registerAgentOptionsSchema.parse(serialized);
     expect(reparsed.name).toBe(parsed.name);
@@ -184,15 +189,13 @@ describe("registerAgentOptionsSchema", () => {
   });
 
   it("rejects empty name", () => {
-    expect(() =>
-      registerAgentOptionsSchema.parse({ ...VALID, name: "" }),
-    ).toThrow(ZodError);
+    expect(() => registerAgentOptionsSchema.parse({ ...VALID, name: "" })).toThrow(ZodError);
   });
 
   it("rejects name longer than 64 chars", () => {
-    expect(() =>
-      registerAgentOptionsSchema.parse({ ...VALID, name: "a".repeat(65) }),
-    ).toThrow(ZodError);
+    expect(() => registerAgentOptionsSchema.parse({ ...VALID, name: "a".repeat(65) })).toThrow(
+      ZodError,
+    );
   });
 
   it("accepts name of exactly 64 chars (boundary)", () => {
@@ -202,9 +205,7 @@ describe("registerAgentOptionsSchema", () => {
   });
 
   it("rejects empty skills array", () => {
-    expect(() =>
-      registerAgentOptionsSchema.parse({ ...VALID, skills: [] }),
-    ).toThrow(ZodError);
+    expect(() => registerAgentOptionsSchema.parse({ ...VALID, skills: [] })).toThrow(ZodError);
   });
 
   it("rejects skills containing non-slugs", () => {
@@ -214,9 +215,9 @@ describe("registerAgentOptionsSchema", () => {
   });
 
   it("rejects invalid endpoint URL", () => {
-    expect(() =>
-      registerAgentOptionsSchema.parse({ ...VALID, endpoint: "not-a-url" }),
-    ).toThrow(ZodError);
+    expect(() => registerAgentOptionsSchema.parse({ ...VALID, endpoint: "not-a-url" })).toThrow(
+      ZodError,
+    );
   });
 });
 
@@ -240,30 +241,22 @@ describe("buyerClientOptionsSchema", () => {
   });
 
   it("rejects invalid marketplaceUrl", () => {
-    expect(() =>
-      buyerClientOptionsSchema.parse({ marketplaceUrl: "not-a-url" }),
-    ).toThrow(ZodError);
+    expect(() => buyerClientOptionsSchema.parse({ marketplaceUrl: "not-a-url" })).toThrow(ZodError);
   });
 
   it("rejects non-positive maxBudgetLamports", () => {
-    expect(() =>
-      buyerClientOptionsSchema.parse({ maxBudgetLamports: 0 }),
-    ).toThrow(ZodError);
-    expect(() =>
-      buyerClientOptionsSchema.parse({ maxBudgetLamports: -1 }),
-    ).toThrow(ZodError);
+    expect(() => buyerClientOptionsSchema.parse({ maxBudgetLamports: 0 })).toThrow(ZodError);
+    expect(() => buyerClientOptionsSchema.parse({ maxBudgetLamports: -1 })).toThrow(ZodError);
   });
 
   it("rejects float maxBudgetLamports", () => {
-    expect(() =>
-      buyerClientOptionsSchema.parse({ maxBudgetLamports: 0.5 }),
-    ).toThrow(ZodError);
+    expect(() => buyerClientOptionsSchema.parse({ maxBudgetLamports: 0.5 })).toThrow(ZodError);
   });
 
   it("rejects walletKeypair that is not exactly 64 bytes", () => {
-    expect(() =>
-      buyerClientOptionsSchema.parse({ walletKeypair: new Uint8Array(63) }),
-    ).toThrow(ZodError);
+    expect(() => buyerClientOptionsSchema.parse({ walletKeypair: new Uint8Array(63) })).toThrow(
+      ZodError,
+    );
   });
 });
 

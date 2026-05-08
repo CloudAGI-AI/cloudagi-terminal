@@ -6,9 +6,9 @@
  * receipt tracking (newest-first), and limit=0 strict semantics.
  */
 
-import { buyerClientOptionsSchema } from "./schemas.js";
-import { countTokens, computeCostLamports } from "./tokens.js";
 import { hashOutput, hashPrompt } from "./hashes.js";
+import { buyerClientOptionsSchema } from "./schemas.js";
+import { computeCostLamports, countTokens } from "./tokens.js";
 import type {
   Agent,
   AgentId,
@@ -53,8 +53,7 @@ const STUB_AGENTS: ReadonlyArray<Agent> = [
 // ---------------------------------------------------------------------------
 
 /** Base-58 alphabet (no 0, O, I, l). */
-const BASE58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 function randomBase58(len: number): string {
   let result = "";
@@ -106,8 +105,7 @@ class BuyerClientImpl implements BuyerClient {
       // Estimate output tokens conservatively as 2x input.
       const estimatedTokensOut = tokensIn * 2;
       const estimatedCost =
-        computeCostLamports(tokensIn, 1000) +
-        computeCostLamports(estimatedTokensOut, 2000);
+        computeCostLamports(tokensIn, 1000) + computeCostLamports(estimatedTokensOut, 2000);
       if (estimatedCost > this.#maxBudgetLamports) {
         throw new BudgetExceededError(
           `Estimated cost ${estimatedCost} lamports exceeds maxBudgetLamports ${this.#maxBudgetLamports}`,
@@ -141,10 +139,7 @@ class BuyerClientImpl implements BuyerClient {
   /**
    * Real HTTP invocation path with x402 retry.
    */
-  async #fetchInvoke(
-    agentId: AgentId | string,
-    prompt: string,
-  ): Promise<InvocationResult> {
+  async #fetchInvoke(agentId: AgentId | string, prompt: string): Promise<InvocationResult> {
     const url = `${this.#marketplaceUrl}/v1/agents/${String(agentId)}/invoke`;
     const body = JSON.stringify({ prompt });
     const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -162,10 +157,7 @@ class BuyerClientImpl implements BuyerClient {
         headers["X-Payment-Signature"] = paymentSig;
         spentLamports += 1; // stub: 1 lamport per retry
 
-        if (
-          this.#maxBudgetLamports !== undefined &&
-          spentLamports >= this.#maxBudgetLamports
-        ) {
+        if (this.#maxBudgetLamports !== undefined && spentLamports >= this.#maxBudgetLamports) {
           throw new BudgetExceededError(
             `Budget of ${this.#maxBudgetLamports} lamports exhausted during x402 retry`,
           );
@@ -206,10 +198,7 @@ class BuyerClientImpl implements BuyerClient {
   /**
    * Stub invocation — no network calls.
    */
-  async #stubInvoke(
-    agentId: AgentId | string,
-    prompt: string,
-  ): Promise<InvocationResult> {
+  async #stubInvoke(agentId: AgentId | string, prompt: string): Promise<InvocationResult> {
     await Promise.resolve();
 
     const tokensIn = countTokens(prompt);
@@ -243,9 +232,7 @@ class BuyerClientImpl implements BuyerClient {
 
     if (filter?.skill === undefined) return STUB_AGENTS;
 
-    return STUB_AGENTS.filter((a) =>
-      a.skills.includes(filter.skill as string),
-    );
+    return STUB_AGENTS.filter((a) => a.skills.includes(filter.skill as string));
   }
 
   async getReceipts(limit = 20): Promise<ReadonlyArray<ReceiptHandle>> {

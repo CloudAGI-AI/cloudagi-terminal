@@ -32,13 +32,7 @@ export const DEFAULT_DISPUTE_WINDOW_MS = 259_200_000 as const; // 72 * 60 * 60 *
  * Ordered reputation tier labels indexed by tier number 0–4.
  * Matches the `tier` field in ReputationSchema.
  */
-export const REPUTATION_TIERS = [
-  "Unrated",
-  "Bronze",
-  "Silver",
-  "Gold",
-  "Platinum",
-] as const;
+export const REPUTATION_TIERS = ["Unrated", "Bronze", "Silver", "Gold", "Platinum"] as const;
 
 /** Union type of all valid reputation tier labels. */
 export type ReputationTierLabel = (typeof REPUTATION_TIERS)[number];

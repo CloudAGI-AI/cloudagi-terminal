@@ -13,17 +13,12 @@ export interface AppError {
   details?: unknown;
 }
 
-export function makeError(
-  code: ErrorCode,
-  message: string,
-  details?: unknown
-): AppError {
+export function makeError(code: ErrorCode, message: string, details?: unknown): AppError {
   return { code, message, details };
 }
 
 export const Errors = {
-  notFound: (resource: string): AppError =>
-    makeError("NOT_FOUND", `${resource} not found`),
+  notFound: (resource: string): AppError => makeError("NOT_FOUND", `${resource} not found`),
 
   notImplemented: (feature: string): AppError =>
     makeError("NOT_IMPLEMENTED", `${feature} is not yet implemented`),
@@ -31,15 +26,12 @@ export const Errors = {
   paymentRequired: (details?: unknown): AppError =>
     makeError("PAYMENT_REQUIRED", "Payment required to invoke this agent", details),
 
-  unauthorized: (): AppError =>
-    makeError("UNAUTHORIZED", "Authentication required"),
+  unauthorized: (): AppError => makeError("UNAUTHORIZED", "Authentication required"),
 
-  forbidden: (): AppError =>
-    makeError("FORBIDDEN", "Insufficient permissions"),
+  forbidden: (): AppError => makeError("FORBIDDEN", "Insufficient permissions"),
 
   validationError: (details: unknown): AppError =>
     makeError("VALIDATION_ERROR", "Request validation failed", details),
 
-  internal: (message = "Unexpected server error"): AppError =>
-    makeError("INTERNAL_ERROR", message),
+  internal: (message = "Unexpected server error"): AppError => makeError("INTERNAL_ERROR", message),
 } as const;

@@ -29,9 +29,7 @@ describe("hashOutput", () => {
     // echo -n "abc" | sha256sum
     // → ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
     const h = await hashOutput("abc");
-    expect(h).toBe(
-      "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-    );
+    expect(h).toBe("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
   });
 
   it("produces different hashes for different inputs", async () => {
@@ -42,9 +40,7 @@ describe("hashOutput", () => {
 
   it("handles empty string — known SHA-256 of empty bytes", async () => {
     const h = await hashOutput("");
-    expect(h).toBe(
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    );
+    expect(h).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
   });
 
   it("handles unicode input without throwing", async () => {

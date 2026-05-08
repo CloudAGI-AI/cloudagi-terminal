@@ -1,5 +1,5 @@
-import * as React from "react";
 import { cn } from "@/lib/cn";
+import * as React from "react";
 
 export type TerminalLineType = "command" | "output" | "info" | "prompt";
 
@@ -31,7 +31,7 @@ const TerminalPreview = React.forwardRef<HTMLDivElement, TerminalPreviewProps>(
           "rounded-lg border border-[var(--color-border,#2a2a2a)]",
           "bg-[var(--color-surface,#111)] overflow-hidden",
           "shadow-md",
-          className
+          className,
         )}
         {...props}
       >
@@ -41,9 +41,7 @@ const TerminalPreview = React.forwardRef<HTMLDivElement, TerminalPreviewProps>(
           <span className="w-3 h-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
           <span className="w-3 h-3 rounded-full bg-[#28c840]" aria-hidden="true" />
           {title && (
-            <span className="ml-2 text-xs font-mono text-[var(--color-muted,#888)]">
-              {title}
-            </span>
+            <span className="ml-2 text-xs font-mono text-[var(--color-muted,#888)]">{title}</span>
           )}
         </div>
 
@@ -51,15 +49,13 @@ const TerminalPreview = React.forwardRef<HTMLDivElement, TerminalPreviewProps>(
         <div className="p-4 font-mono text-sm space-y-1.5 min-h-[80px]">
           {lines.map((line, i) => (
             <p key={i} className={cn("leading-relaxed", lineColor[line.type])}>
-              {line.type === "command"
-                ? `$ ${line.text}`
-                : line.text}
+              {line.type === "command" ? `$ ${line.text}` : line.text}
             </p>
           ))}
         </div>
       </div>
     );
-  }
+  },
 );
 
 TerminalPreview.displayName = "TerminalPreview";

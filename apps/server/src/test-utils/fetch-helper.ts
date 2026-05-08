@@ -42,7 +42,7 @@ export interface ParsedResponse<T = unknown> {
 export async function request<T = unknown>(
   app: Hono,
   path: string,
-  opts: RequestOptions = {}
+  opts: RequestOptions = {},
 ): Promise<ParsedResponse<T>> {
   const { method = "GET", headers = {}, body, init = {} } = opts;
 
@@ -83,22 +83,19 @@ export async function request<T = unknown>(
 // Convenience wrappers
 // ---------------------------------------------------------------------------
 
-export const get = <T = unknown>(
-  app: Hono,
-  path: string,
-  headers: Record<string, string> = {}
-) => request<T>(app, path, { method: "GET", headers });
+export const get = <T = unknown>(app: Hono, path: string, headers: Record<string, string> = {}) =>
+  request<T>(app, path, { method: "GET", headers });
 
 export const post = <T = unknown>(
   app: Hono,
   path: string,
   body?: unknown,
-  headers: Record<string, string> = {}
+  headers: Record<string, string> = {},
 ) => request<T>(app, path, { method: "POST", body, headers });
 
 export const patch = <T = unknown>(
   app: Hono,
   path: string,
   body?: unknown,
-  headers: Record<string, string> = {}
+  headers: Record<string, string> = {},
 ) => request<T>(app, path, { method: "PATCH", body, headers });

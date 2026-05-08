@@ -1,30 +1,27 @@
 import type { z } from "zod";
+import type { InjectionFlagSchema } from "../injection.js";
 import type {
-  AgentSchema,
   AgentModelSchema,
   AgentPolicySchema,
+  AgentSchema,
   PricingModelSchema,
 } from "../schemas/agent.js";
-import type { InjectionFlagSchema } from "../injection.js";
-import type { SessionSchema } from "../schemas/session.js";
+import type { IntentApprovalSchema, IntentScopeSchema } from "../schemas/intentApproval.js";
 import type {
-  InvocationSchema,
-  ToolCallSchema,
   InvocationFlagsSchema,
   InvocationParamsSchema,
+  InvocationSchema,
+  ToolCallSchema,
 } from "../schemas/invocation.js";
 import type { ReceiptSchema } from "../schemas/receipt.js";
-import type { StakeEventSchema } from "../schemas/stakeEvent.js";
 import type {
-  ReputationSchema,
   ReputationCountsSchema,
   ReputationRatingsSchema,
+  ReputationSchema,
   ReputationTimingSchema,
 } from "../schemas/reputation.js";
-import type {
-  IntentApprovalSchema,
-  IntentScopeSchema,
-} from "../schemas/intentApproval.js";
+import type { SessionSchema } from "../schemas/session.js";
+import type { StakeEventSchema } from "../schemas/stakeEvent.js";
 
 /** TypeScript type for a fully validated Agent record. */
 export type Agent = z.infer<typeof AgentSchema>;

@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/cn";
+import * as React from "react";
 
 export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   language?: string;
@@ -21,7 +21,7 @@ const CodeBlock = React.forwardRef<HTMLDivElement, CodeBlockProps>(
       "aria-label": ariaLabel,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [copied, setCopied] = React.useState(false);
 
@@ -43,7 +43,7 @@ const CodeBlock = React.forwardRef<HTMLDivElement, CodeBlockProps>(
         className={cn(
           "rounded-lg border border-[var(--color-border,#2a2a2a)]",
           "bg-[var(--color-surface,#111)] overflow-hidden",
-          className
+          className,
         )}
         {...props}
       >
@@ -64,7 +64,7 @@ const CodeBlock = React.forwardRef<HTMLDivElement, CodeBlockProps>(
                 "text-xs font-mono px-2 py-0.5 rounded",
                 "border border-[var(--color-border,#2a2a2a)]",
                 "text-[var(--color-muted,#888)] hover:text-[#00d184]",
-                "transition-colors duration-150"
+                "transition-colors duration-150",
               )}
             >
               {copied ? "Copied" : "Copy"}
@@ -78,7 +78,7 @@ const CodeBlock = React.forwardRef<HTMLDivElement, CodeBlockProps>(
         </pre>
       </div>
     );
-  }
+  },
 );
 
 CodeBlock.displayName = "CodeBlock";

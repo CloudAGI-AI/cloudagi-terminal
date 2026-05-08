@@ -25,7 +25,7 @@
  */
 
 import { createHmac } from "node:crypto";
-import type { Context, Next, MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler, Next } from "hono";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -36,8 +36,7 @@ import type { Context, Next, MiddlewareHandler } from "hono";
  * DEV DEFAULT: fixed dev-only string — set AUTH_SECRET env var in production.
  */
 const AUTH_SECRET =
-  (process.env["AUTH_SECRET"] as string | undefined) ??
-  "cloudagi-dev-secret-change-in-production";
+  (process.env["AUTH_SECRET"] as string | undefined) ?? "cloudagi-dev-secret-change-in-production";
 
 /** How long a session token is valid (8 hours). */
 const SESSION_TTL_MS = 8 * 60 * 60 * 1_000;
@@ -86,7 +85,7 @@ function hmacSign(data: string): string {
 export function signSessionToken(wallet: string): string {
   const header = base64urlEncode(JSON.stringify({ alg: "HS256", typ: "session" }));
   const payload = base64urlEncode(
-    JSON.stringify({ wallet, exp: Date.now() + SESSION_TTL_MS } satisfies SessionPayload)
+    JSON.stringify({ wallet, exp: Date.now() + SESSION_TTL_MS } satisfies SessionPayload),
   );
   const sig = hmacSign(`${header}.${payload}`);
   return `${header}.${payload}.${sig}`;
@@ -139,10 +138,7 @@ function isPlausibleWalletSig(sig: string): boolean {
  * Parse the X-Auth-Message and check its timestamp.
  * Expected format: cloudagi:auth:<wallet>:<timestampMs>
  */
-function parseAuthMessage(
-  message: string,
-  wallet: string
-): { valid: boolean; expired: boolean } {
+function parseAuthMessage(message: string, wallet: string): { valid: boolean; expired: boolean } {
   const parts = message.split(":");
   // "cloudagi" : "auth" : <wallet> : <ts>
   if (parts.length < 4) return { valid: false, expired: false };
@@ -166,13 +162,10 @@ function parseAuthMessage(
 // ---------------------------------------------------------------------------
 
 function json401(message = "Unauthorized"): Response {
-  return new Response(
-    JSON.stringify({ error: { code: "UNAUTHORIZED", message } }),
-    {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    }
-  );
+  return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message } }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 // ---------------------------------------------------------------------------

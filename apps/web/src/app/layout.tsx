@@ -1,17 +1,16 @@
-import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "CloudAGI",
   description:
-    "An open marketplace where anyone can register a local or hosted AI agent and earn stablecoin payments per call — with full transparency via on-chain receipts.",
+    "Sell tokens, not subscriptions. Tokens per watt per dollar. Settled in USDC on Solana. CloudAGI is the marketplace for the actual unit of AI work.",
   metadataBase: new URL("https://cloudagi.ai"),
   openGraph: {
     title: "CloudAGI",
-    description:
-      "Monetize your models. Rent agents with receipts. On-chain from the terminal.",
+    description: "Sell tokens, not subscriptions. Settled in USDC on Solana.",
     url: "https://cloudagi.ai",
     siteName: "CloudAGI",
     locale: "en_US",
@@ -20,8 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CloudAGI",
-    description:
-      "Monetize your models. Rent agents with receipts. On-chain from the terminal.",
+    description: "Sell tokens, not subscriptions. Settled in USDC on Solana.",
   },
   icons: {
     icon: "/favicon.ico",

@@ -19,7 +19,7 @@
  *   app.use("/protected/*", createX402Middleware({ storeNonce: myFn }))
  */
 
-import type { Context, Next, MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler, Next } from "hono";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -159,7 +159,8 @@ function isValidNonceFormat(nonce: string): boolean {
   // Our issued challenge format
   if (/^nonce-\d+(-[0-9a-f-]+)?$/.test(nonce)) return true;
   // UUID v4
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(nonce)) return true;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(nonce))
+    return true;
   return false;
 }
 
@@ -167,7 +168,12 @@ function isValidNonceFormat(nonce: string): boolean {
 // Helper: build a JSON response and finalize the Hono context
 // ---------------------------------------------------------------------------
 
-function jsonResponse(c: Context, status: number, body: unknown, extraHeaders?: Record<string, string>): Response {
+function jsonResponse(
+  c: Context,
+  status: number,
+  body: unknown,
+  extraHeaders?: Record<string, string>,
+): Response {
   const json = JSON.stringify(body);
   const headers = new Headers({ "Content-Type": "application/json" });
   if (extraHeaders) {
@@ -191,21 +197,25 @@ export function createX402Middleware(opts: X402MiddlewareOpts = {}): MiddlewareH
     // ── No payment header → emit 402 challenge ───────────────────────────
     if (!authHeader) {
       const nonce = `nonce-${Date.now()}-${crypto.randomUUID()}`;
-      c.res = jsonResponse(c, 402,
+      c.res = jsonResponse(
+        c,
+        402,
         { error: { code: "PAYMENT_REQUIRED", message: "Payment required" } },
         {
           "X-Payment-Scheme": "x402/solana",
           "X-Payment-Nonce": nonce,
           "X-Payment-Receiver": PAYMENT_RECEIVER,
           "X-Payment-Amount": String(PAYMENT_AMOUNT_LAMPORTS),
-        }
+        },
       );
       return;
     }
 
     // ── Empty header → 402 ───────────────────────────────────────────────
     if (authHeader.trim() === "") {
-      c.res = jsonResponse(c, 402, { error: { code: "PAYMENT_REQUIRED", message: "Empty payment header" } });
+      c.res = jsonResponse(c, 402, {
+        error: { code: "PAYMENT_REQUIRED", message: "Empty payment header" },
+      });
       return;
     }
 
@@ -213,29 +223,36 @@ export function createX402Middleware(opts: X402MiddlewareOpts = {}): MiddlewareH
     const payload = parseAuthHeader(authHeader);
 
     if (!payload) {
-      c.res = jsonResponse(c, 402, { error: { code: "INVALID_PAYMENT", message: "Malformed payment header" } });
+      c.res = jsonResponse(c, 402, {
+        error: { code: "INVALID_PAYMENT", message: "Malformed payment header" },
+      });
       return;
     }
 
     // ── Scheme check ─────────────────────────────────────────────────────
     const schemeOk =
-      payload.scheme === "x402/solana" ||
-      authHeader.toLowerCase().startsWith("x402 ");
+      payload.scheme === "x402/solana" || authHeader.toLowerCase().startsWith("x402 ");
 
     if (!schemeOk) {
-      c.res = jsonResponse(c, 402, { error: { code: "UNSUPPORTED_SCHEME", message: "Unsupported payment scheme" } });
+      c.res = jsonResponse(c, 402, {
+        error: { code: "UNSUPPORTED_SCHEME", message: "Unsupported payment scheme" },
+      });
       return;
     }
 
     // ── Nonce required + format validation ──────────────────────────────
     const nonce = payload.nonce;
     if (!nonce) {
-      c.res = jsonResponse(c, 402, { error: { code: "INVALID_PAYMENT", message: "Missing nonce" } });
+      c.res = jsonResponse(c, 402, {
+        error: { code: "INVALID_PAYMENT", message: "Missing nonce" },
+      });
       return;
     }
 
     if (!isValidNonceFormat(nonce)) {
-      c.res = jsonResponse(c, 402, { error: { code: "INVALID_PAYMENT", message: "Invalid nonce format" } });
+      c.res = jsonResponse(c, 402, {
+        error: { code: "INVALID_PAYMENT", message: "Invalid nonce format" },
+      });
       return;
     }
 

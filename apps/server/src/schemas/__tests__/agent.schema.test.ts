@@ -6,20 +6,16 @@
  * Tests for missing/extended behavior will fail until Wave 2.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import { AgentSchema, CreateAgentSchema, PricingSchema } from "../../schemas/agent.js";
 import {
-  AgentSchema,
-  CreateAgentSchema,
-  PricingSchema,
-} from "../../schemas/agent.js";
-import {
-  validAgent,
-  validCreateAgent,
-  agentMissingSkills,
   agentEmptySkills,
   agentInvalidEndpoint,
-  agentNegativePricing,
   agentMissingProvider,
+  agentMissingSkills,
+  agentNegativePricing,
+  validAgent,
+  validCreateAgent,
 } from "../../test-utils/fixtures.js";
 
 // ---------------------------------------------------------------------------
@@ -29,8 +25,8 @@ import {
 describe("PricingSchema", () => {
   it("should accept valid pricing with positive rates", () => {
     const result = PricingSchema.safeParse({
-      perMTokensIn: 0.50,
-      perMTokensOut: 1.50,
+      perMTokensIn: 0.5,
+      perMTokensOut: 1.5,
     });
     expect(result.success).toBe(true);
   });

@@ -11,17 +11,14 @@ const BASE_URL =
 export class ApiError extends Error {
   constructor(
     message: string,
-    public readonly status: number
+    public readonly status: number,
   ) {
     super(message);
     this.name = "ApiError";
   }
 }
 
-async function request<T>(
-  path: string,
-  init?: RequestInit
-): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { "Content-Type": "application/json", ...init?.headers },
     ...init,
